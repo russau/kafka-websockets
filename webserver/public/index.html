@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exercise</title>
+  <style>
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .speech-bubble {
+        position: relative;
+        background: #ddddff;
+        border-radius: .4em;
+        padding: 10px;
+        margin: 10px;
+    }
+    
+    #mapid { height: 500px; width: 500px }
+
+
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+     integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+     crossorigin=""/>
+</head>
+<body>
+
+  <div id="mapid"></div>
+  <div id="main"></div>
+
+
+  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+
+  <script>
+  $(function(){
+  
+    const socket = io({
+        transports: ['websocket']
+    });
+    
+    var mymap = L.map('mapid').setView([47.610664, -122.338917
+                ], 13);
+    var marker = L.marker([0,0]);
+    marker.addTo(mymap);
+    
+    L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.{ext}', {
+     ext: 'png',
+     maxZoom: 18,
+     attribution: 'Wikimedia maps | Map data &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    }).addTo(mymap);
+
+    // for (const p in velocity_points) {
+    //   L.marker(velocity_points[p]).addTo(mymap);
+    // }
+  
+    socket.on('new message', (data) => {
+        marker.setLatLng(JSON.parse(data));
+    });
+  });
+  </script>
+</body>
+</html>
