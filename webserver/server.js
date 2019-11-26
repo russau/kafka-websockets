@@ -10,13 +10,20 @@ consumer.connect();
 
 consumer
   .on('ready', function() {
+    console.log("Consumer ready")
     consumer.subscribe(['driver-positions']);
     consumer.consume();
   })
   .on('data', function(data) {
     // Output the actual message contents
-    console.log(".");
-    io.sockets.emit('new message', data.value.toString());
+    io.sockets.emit('new message', 
+    {
+      "latitude" : JSON.parse(data.value.toString())[0],
+      "longitude" : JSON.parse(data.value.toString())[1],
+      "timestamp" : data.timestamp,
+      "partition" : data.partition,
+      "offset" : data.offset
+    });
   });
   
 
