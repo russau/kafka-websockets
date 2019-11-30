@@ -1,6 +1,6 @@
 const Kafka = require('node-rdkafka');
 
-var bootstrapServers = process.env.BOOTSTRAP_SERVERS || "localhost:9092";
+var bootstrapServers = process.env.BOOTSTRAP_SERVERS || "localhost:29092";
 
 
 const producer = new Kafka.Producer({
@@ -9,8 +9,11 @@ const producer = new Kafka.Producer({
     'dr_cb': true
 });
 
+var driverId = process.argv[2];
+var driverData = process.argv[3];
+
 const fs = require('fs');
-let rawdata = fs.readFileSync('drivers/1.js');
+let rawdata = fs.readFileSync(driverData);
 let coords = JSON.parse(rawdata);
 let lasttime = Date.now();
 let pos = 0;
@@ -23,7 +26,7 @@ producer.on('ready', () => {
 
   setInterval(() => {
     try {
-        const key = "driver-1";
+        const key = driverId;
         const value = JSON.stringify(coords[pos]);
         producer.produce(
             'driver-positions',

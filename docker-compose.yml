@@ -10,15 +10,23 @@ services:
 
   kafka:
     image: confluentinc/cp-enterprise-kafka:5.3.1
+    container_name: kafka
+    ports:
+      - 29092:29092
     environment:
       KAFKA_BROKER_ID: 101
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENERS: LISTENER_INT://0.0.0.0:9092,LISTENER_EXT://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_INT://kafka:9092,LISTENER_EXT://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INT:PLAINTEXT,LISTENER_EXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INT
 
   producer:
-    container_name: node-producer
+    container_name: producer
     build: ./node-producer
+    command: npm run start -- driver-1 drivers/1.json
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
 
