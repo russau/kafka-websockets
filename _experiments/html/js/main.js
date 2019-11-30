@@ -3,7 +3,7 @@
 
 
 var mymap = L.map('mapid').setView([47.610664, -122.338917
-            ], 13);
+], 18);
 L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.{ext}', {
  ext: 'png',
  maxZoom: 18,
@@ -11,7 +11,7 @@ L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.{ext}', {
 }).addTo(mymap);
 
 for (const p in velocity_points) {
-  L.marker(velocity_points[p]).addTo(mymap);
+  L.marker(velocity_points[p], { 'title' : velocity_points[p][0] + ' ' + velocity_points[p][1]}).addTo(mymap);
 }
 
 var greenIcon = new L.Icon({
