@@ -1,5 +1,5 @@
 const Kafka = require('node-rdkafka');
-var bootstrapServers = process.env.BOOTSTRAP_SERVERS || "localhost:9092";
+var bootstrapServers = process.env.BOOTSTRAP_SERVERS || "localhost:29092";
 
 var consumer = new Kafka.KafkaConsumer({
   'group.id': 'webserver-01',
@@ -18,6 +18,7 @@ consumer
     // Output the actual message contents
     io.sockets.emit('new message', 
     {
+      "key" : data.key.toString(),
       "latitude" : JSON.parse(data.value.toString())[0],
       "longitude" : JSON.parse(data.value.toString())[1],
       "timestamp" : data.timestamp,

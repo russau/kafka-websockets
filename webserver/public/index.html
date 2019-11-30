@@ -19,10 +19,10 @@
 
   <div id="mapid"></div>
   <div id="main"></div>
-<pre><code id="json">abc</code></pre>
-<pre><code id="time">abc</code></pre>
+  <pre><code id="json">-</code></pre>
+  <pre><code id="time">-</code></pre>
 
-  <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
@@ -37,8 +37,7 @@
     
     var mymap = L.map('mapid').setView([47.610664, -122.338917
                 ], 13);
-    var marker = L.marker([0,0]);
-    marker.addTo(mymap);
+    var driverMarkers = {};
     
     L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.{ext}', {
      ext: 'png',
@@ -47,7 +46,11 @@
     }).addTo(mymap);
 
     socket.on('new message', (data) => {
-      marker.setLatLng([data.latitude, data.longitude]);
+      if (!(data.key in driverMarkers)) {
+        driverMarkers[data.key] = L.marker([data.latitude, data.longitude]);
+        driverMarkers[data.key].addTo(mymap);
+      }
+      driverMarkers[data.key].setLatLng([data.latitude, data.longitude]);
       $('#json').html(JSON.stringify(data, null, 2));
       $('#time').html(convertEpochToSpecificTimezone(data.timestamp));
     });
