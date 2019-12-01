@@ -43,6 +43,12 @@ services:
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
 
+  streams:
+    container_name: streams
+    build: ./streams
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+
   webserver:
     container_name: webserver
     build: ./webserver

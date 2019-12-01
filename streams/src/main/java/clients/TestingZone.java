@@ -29,8 +29,10 @@ public class TestingZone {
 
         // TODO: add code here
         Properties settings = new Properties();
+        String bootstrapServer = System.getenv("BOOTSTRAP_SERVERS");
+        bootstrapServer = (bootstrapServer != null) ? bootstrapServer : "localhost:29092";
         settings.put(StreamsConfig.APPLICATION_ID_CONFIG, "vp-streams-app-1");
-        settings.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
+        settings.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
         settings.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         settings.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         // Disabling caching ensures we get a complete "changelog" from the aggregate(...) step above (i.e. 
@@ -87,16 +89,14 @@ public class TestingZone {
                 Double latitude2 = Double.parseDouble(matcher.group(1));
                 Double longitude2 = Double.parseDouble(matcher.group(2));
 
-                System.out.println(longitude1);
                 if (latitude1 != 0) {
                     Double distance = Geodesic.WGS84.Inverse(latitude1, longitude1, latitude2, longitude2).s12;
-                    System.out.printf("%f coords %f %f %f %f\n", distance, latitude1, longitude1, latitude2, longitude2);
                     lastDistance += distance;
                 }
                 return latitude2 + "," + longitude2 + "," + lastDistance;
             }, Materialized.as("queryable-store-name"));
 
-        reduced.toStream().to("with-distance");
+            reduced.toStream().to("with-distance");
 
         Topology topology = builder.build();
         return topology;
