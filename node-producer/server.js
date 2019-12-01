@@ -22,8 +22,7 @@ producer.setPollInterval(100);
 producer.connect();
 
 producer.on('ready', () => {
-
-
+  console.log(`Producer ready: ${driverId} ${driverData}`);
   setInterval(() => {
     try {
         const key = driverId;
@@ -46,7 +45,7 @@ producer.on('ready', () => {
 
 producer.on('delivery-report', (err, report) => {
   // Report of delivery statistics here:
-  console.log(report);
+  // console.log(report);
 });
 
 producer.on('event.error', err => {

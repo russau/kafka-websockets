@@ -23,16 +23,32 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INT:PLAINTEXT,LISTENER_EXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INT
 
-  producer:
-    container_name: producer
+  producer1:
+    container_name: producer1
     build: ./node-producer
+    volumes:
+      - ./node-producer:/app
+      - /app/node_modules/
     command: npm run start -- driver-1 drivers/1.json
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+
+  producer2:
+    container_name: producer2
+    build: ./node-producer
+    volumes:
+      - ./node-producer:/app
+      - /app/node_modules/
+    command: npm run start -- driver-2 drivers/2.json
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
 
   webserver:
     container_name: webserver
     build: ./webserver
+    volumes:
+      - ./webserver:/home/node/app
+      - /home/node/app/node_modules/
     ports:
       - 3000:3000
     environment:
