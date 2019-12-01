@@ -96,7 +96,7 @@ public class TestingZone {
                 return latitude2 + "," + longitude2 + "," + lastDistance;
             }, Materialized.as("queryable-store-name"));
 
-            reduced.toStream().to("with-distance");
+            reduced.toStream().to("driver-positions-distance");
 
         Topology topology = builder.build();
         return topology;

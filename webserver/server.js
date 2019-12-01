@@ -11,16 +11,18 @@ consumer.connect();
 consumer
   .on('ready', function() {
     console.log("Consumer ready")
-    consumer.subscribe(['driver-positions']);
+    consumer.subscribe(['driver-positions-distance']);
     consumer.consume();
   })
   .on('data', function(data) {
     // Output the actual message contents
+    
     io.sockets.emit('new message', 
     {
       "key" : data.key.toString(),
-      "latitude" : JSON.parse(data.value.toString())[0],
-      "longitude" : JSON.parse(data.value.toString())[1],
+      "latitude" : data.value.toString().split(',')[0],
+      "longitude" : data.value.toString().split(',')[1],
+      "distance" : data.value.toString().split(',')[2],
       "timestamp" : data.timestamp,
       "partition" : data.partition,
       "offset" : data.offset
