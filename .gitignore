@@ -1,3 +1,23 @@
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+data/
+build/
+.gradle/
+bin/
+obj/
+experiment/
+.classpath
+.project
+.settings
+node_modules/
+.DS_Store
+.idea/
+gradle/
+gradlew*
+offset_*
+
+
 # Logs
 logs
 *.log
