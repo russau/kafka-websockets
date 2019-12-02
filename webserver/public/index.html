@@ -18,7 +18,19 @@
 <body>
 
   <div id="mapid"></div>
-  <div id="main"></div>
+
+  <details>
+  <summary>manual plotter</summary>
+  <textarea id="manual" cols="50" rows="10">
+driver-1,47.61424964161,-122.33030816845019
+driver-2,47.61350964731066,-122.33208246997802
+driver-1,47.61420261508394,-122.3304215525644
+driver-2,47.613462507553486,-122.33219574693297
+  </textarea>
+  <button id="view">view</button>
+  </details>
+
+
   <div id="json"></div>
 
   <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
@@ -46,21 +58,27 @@
 
     socket.on('new message', (data) => {
       if (!(data.key in driverMarkers)) {
-        driverMarkers[data.key] = L.marker([data.latitude, data.longitude]);
+        driverMarkers[data.key] = L.circleMarker([data.latitude, data.longitude], {radius: 5});
         driverMarkers[data.key].addTo(mymap);
         $('#json').append($('<pre><code>x</code></pre>').attr('id', data.key));
       }
       driverMarkers[data.key].setLatLng([data.latitude, data.longitude]);
       $('#' + data.key).html(JSON.stringify(data, null, 2));
     });
+    
+    
+    $('#view').click(function(){
+      var lines = $('#manual').val().split('\n');
+      var latlngs = [];
+      for (i in lines) {
+        var latitude = parseFloat(lines[i].split(",")[1]);
+        var longitude = parseFloat(lines[i].split(",")[2]);
+        L.circleMarker([latitude, longitude], {radius: 5, color: 'red'}).addTo(mymap);
+      }
+    });
   });
   
-  function convertEpochToSpecificTimezone(epoch){
-    var d = new Date(epoch);
-    // var utc = d.getTime() + (d.getTimezoneOffset() * 60000);  //This converts to UTC 00:00
-    // var nd = new Date(utc + (3600000*offset));
-    return d.toLocaleString();
-  }
+
   </script>
 </body>
 </html>
