@@ -15,20 +15,20 @@ consumer
     consumer.consume();
   })
   .on('data', function(data) {
-    
+    var arr = data.value.toString().split(',');
     var message = {
       "key" : data.key.toString(),
-      "latitude" : data.value.toString().split(',')[0],
-      "longitude" : data.value.toString().split(',')[1],      
+      "latitude" : parseFloat(arr[0]).toFixed(6),
+      "longitude" : parseFloat(arr[1]).toFixed(6),     
       "timestamp" : data.timestamp,
-      "latency" : new Date().getTime() - data.timestamp,
+      // "latency" : new Date().getTime() - data.timestamp,
       "partition" : data.partition,
       "offset" : data.offset
     };
     
-    if (data.value.toString().split(',').length > 2)
+    if (arr.length > 2)
     {
-      message['distace'] =  data.value.toString().split(',')[2];
+      message['distance'] =  Math.round(arr[2]);
     }
     
     io.sockets.emit('new message', message);
