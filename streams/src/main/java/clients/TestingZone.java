@@ -41,6 +41,7 @@ public class TestingZone {
         settings.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "0");
 
         Topology topology = getTopology();
+        System.out.println(topology.describe());
         KafkaStreams streams = new KafkaStreams(topology, settings);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
