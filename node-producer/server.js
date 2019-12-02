@@ -26,7 +26,7 @@ producer.on('ready', () => {
   setInterval(() => {
     try {
         const key = driverId;
-        const value = JSON.stringify(coords[pos]);
+        const value = coords[pos][0] + "," + coords[pos][1];
         producer.produce(
             'driver-positions',
             null,

@@ -15,18 +15,23 @@ consumer
     consumer.consume();
   })
   .on('data', function(data) {
-    // Output the actual message contents
     
-    io.sockets.emit('new message', 
-    {
+    var message = {
       "key" : data.key.toString(),
       "latitude" : data.value.toString().split(',')[0],
-      "longitude" : data.value.toString().split(',')[1],
-      "distance" : data.value.toString().split(',')[2],
+      "longitude" : data.value.toString().split(',')[1],      
       "timestamp" : data.timestamp,
+      "latency" : new Date().getTime() - data.timestamp,
       "partition" : data.partition,
       "offset" : data.offset
-    });
+    };
+    
+    if (data.value.toString().split(',').length > 2)
+    {
+      message['distace'] =  data.value.toString().split(',')[2];
+    }
+    
+    io.sockets.emit('new message', message);
   });
   
 

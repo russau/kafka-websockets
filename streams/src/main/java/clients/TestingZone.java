@@ -37,7 +37,7 @@ public class TestingZone {
         settings.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         // Disabling caching ensures we get a complete "changelog" from the aggregate(...) step above (i.e. 
         // every input event will have a corresponding output event.
-        // see https://kafka.apache.org/10/documentation/streams/developer-guide/memory-mgmt.html#id1
+        // see https://kafka.apache.org/23/documentation/streams/developer-guide/memory-mgmt.html#record-caches-in-the-dsl
         settings.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "0");
 
         Topology topology = getTopology();
@@ -83,7 +83,7 @@ public class TestingZone {
                 Double longitude1 = Double.parseDouble(accumulator.split(",")[1]);
                 Double lastDistance = Double.parseDouble(accumulator.split(",")[2]);
 
-                Pattern pattern = Pattern.compile("\\[([-+]?\\d*\\.\\d*),([-+]?\\d*\\.\\d*)");
+                Pattern pattern = Pattern.compile("([-+]?\\d*\\.\\d*),([-+]?\\d*\\.\\d*)");
                 Matcher matcher = pattern.matcher(newValue);
                 matcher.find();
                 Double latitude2 = Double.parseDouble(matcher.group(1));
