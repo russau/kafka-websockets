@@ -40,6 +40,8 @@ driver-2,47.613462507553486,-122.33219574693297
     crossorigin=""></script>
 
   <script>
+  
+  var driverColors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
   $(function(){
   
     const socket = io({
@@ -58,7 +60,9 @@ driver-2,47.613462507553486,-122.33219574693297
 
     socket.on('new message', (data) => {
       if (!(data.key in driverMarkers)) {
-        driverMarkers[data.key] = L.circleMarker([data.latitude, data.longitude], {radius: 5});
+        var colorPos = Object.keys(driverMarkers).length % driverColors.length;
+        var color = driverColors[colorPos];
+        driverMarkers[data.key] = L.circleMarker([data.latitude, data.longitude], {radius: 5, color: color, drivertype: "live", title: data.key});
         driverMarkers[data.key].addTo(mymap);
         $('#json').append($('<pre><code>x</code></pre>').attr('id', data.key));
       }
@@ -68,12 +72,22 @@ driver-2,47.613462507553486,-122.33219574693297
     
     
     $('#view').click(function(){
+      
+      mymap.eachLayer(function(layer){
+        if(layer instanceof L.CircleMarker) {
+          if (layer.options.drivertype == 'history') {
+            layer.remove();
+          }
+        }
+      });
       var lines = $('#manual').val().split('\n');
       var latlngs = [];
       for (i in lines) {
+        var driverId = lines[i].split(",")[0];
         var latitude = parseFloat(lines[i].split(",")[1]);
         var longitude = parseFloat(lines[i].split(",")[2]);
-        L.circleMarker([latitude, longitude], {radius: 5, color: 'red'}).addTo(mymap);
+        var color = (driverId in driverMarkers) ? driverMarkers[driverId].options.color : 'red';
+        L.circleMarker([latitude, longitude], {radius: 5, color: color, drivertype: "history"}).addTo(mymap);
       }
     });
   });
