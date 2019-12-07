@@ -49,7 +49,7 @@ services:
     volumes:
       - ./node-producer:/app
       - /app/node_modules/
-    command: bash -c "sleep 60 && npm run start -- driver-3 drivers/1.json"
+    command: npm run start -- driver-3 drivers/3.json
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
 
@@ -59,7 +59,17 @@ services:
     volumes:
       - ./node-producer:/app
       - /app/node_modules/
-    command: bash -c "sleep 60 && npm run start -- driver-4 drivers/2.json"
+    command: npm run start -- driver-4 drivers/4.json
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+
+  producer5:
+    container_name: producer5
+    build: ./node-producer
+    volumes:
+      - ./node-producer:/app
+      - /app/node_modules/
+    command: bash -c "sleep 60 && npm run start -- driver-5 drivers/2.json"
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
 
