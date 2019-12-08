@@ -1,6 +1,9 @@
-FROM node:8.15.1-jessie
+FROM node:dubnium-stretch
+RUN apt-get update && \
+apt-get install -y kafkacat
 WORKDIR /app
 COPY package.json ./
 RUN npm install
 COPY . .
-CMD npm start
+
+

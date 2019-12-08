@@ -29,9 +29,13 @@ services:
     volumes:
       - ./node-producer:/app
       - /app/node_modules/
-    command: npm run start -- driver-1 drivers/1.json
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
+    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+                      do sleep 1; \
+                      echo waiting for topic; \
+                      done; \
+                      npm run start -- driver-1 drivers/1.json'"
 
   producer2:
     container_name: producer2
@@ -39,9 +43,13 @@ services:
     volumes:
       - ./node-producer:/app
       - /app/node_modules/
-    command: npm run start -- driver-2 drivers/2.json
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
+    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+                      do sleep 1; \
+                      echo waiting for topic; \
+                      done; \
+                      npm run start -- driver-2 drivers/2.json'"
 
   producer3:
     container_name: producer3
@@ -49,29 +57,27 @@ services:
     volumes:
       - ./node-producer:/app
       - /app/node_modules/
-    command: npm run start -- driver-3 drivers/3.json
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
-
+    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+                      do sleep 1; \
+                      echo waiting for topic; \
+                      done; \
+                      npm run start -- driver-3 drivers/3.json'"
+                        
   producer4:
     container_name: producer4
     build: ./node-producer
     volumes:
       - ./node-producer:/app
       - /app/node_modules/
-    command: npm run start -- driver-4 drivers/4.json
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
-
-  producer5:
-    container_name: producer5
-    build: ./node-producer
-    volumes:
-      - ./node-producer:/app
-      - /app/node_modules/
-    command: bash -c "sleep 60 && npm run start -- driver-5 drivers/2.json"
-    environment:
-      BOOTSTRAP_SERVERS: kafka:9092
+    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+                      do sleep 1; \
+                      echo waiting for topic; \
+                      done; \
+                      npm run start -- driver-4 drivers/4.json'"
 
   streams:
     container_name: streams
@@ -89,6 +95,11 @@ services:
       - 3000:3000
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
+    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+                      do sleep 1; \
+                      echo waiting for topic; \
+                      done; \
+                      npm run start'"
 
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
@@ -118,7 +129,6 @@ services:
       KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
 
-
   nginx:
     image: nginx:1.15-alpine
     container_name: nginx
@@ -128,3 +138,18 @@ services:
       - 80:8080
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
+
+  populate:
+    image: confluentinc/cp-enterprise-kafka:5.3.1
+    container_name: populate
+    volumes:
+      - ./drivers.csv:/drivers.csv
+    command: "bash -c 'echo Waiting for Kafka to be ready... && \
+                       cub kafka-ready -b kafka:9092 1 300 && \
+                       echo Creating topics... && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver --partitions 3 --replication-factor 1 && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions --partitions 3 --replication-factor 1 && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions-distance --partitions 3 --replication-factor 1 && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-augmented --partitions 3 --replication-factor 1 && \
+                       cat /drivers.csv | kafka-console-producer --broker-list kafka:9092 --topic driver --property key.separator=: --property parse.key=true'"
+
