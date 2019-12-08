@@ -7,6 +7,8 @@ const producer = new Kafka.Producer({
     'client.id': 'node-producer',
     'metadata.broker.list': bootstrapServers,
     'dr_cb': true
+},{
+  'partitioner' : 'murmur2_random'
 });
 
 var driverId = process.argv[2];
