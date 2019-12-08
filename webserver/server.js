@@ -1,31 +1,43 @@
 const Kafka = require('node-rdkafka');
 const bootstrapServers = process.env.BOOTSTRAP_SERVERS || 'localhost:29092';
-
+var topics = ['driver-positions', 'driver-positions-distance', 'driver-augmented'];
+var maxTopicIndex = 0;
 var stream = Kafka.createReadStream({
   'group.id': 'webserver-01',
   'metadata.broker.list': bootstrapServers
 }, {}, {
-  topics: ['driver-positions-distance'],
+  topics: topics,
   waitInterval: 0
 });
 
 stream.on('data', function(data) {
-    const arr = data.value.toString().split(',');
-    const message = {
-      'key': data.key.toString(),
-      'latitude': parseFloat(arr[0]).toFixed(6),
-      'longitude': parseFloat(arr[1]).toFixed(6),
-      'timestamp': data.timestamp,
-      // "latency" : new Date().getTime() - data.timestamp,
-      'partition': data.partition,
-      'offset': data.offset,
-    };
+    const topicIndex = topics.indexOf(data.topic);
+    maxTopicIndex = Math.max(topicIndex, maxTopicIndex);
+    
+    if (topicIndex==maxTopicIndex) {
+      const arr = data.value.toString().split(',');
+      const message = {
+        'topic': data.topic,
+        'key': data.key.toString(),
+        'latitude': parseFloat(arr[0]).toFixed(6),
+        'longitude': parseFloat(arr[1]).toFixed(6),
+        'timestamp': data.timestamp,
+        // "latency" : new Date().getTime() - data.timestamp,
+        'partition': data.partition,
+        'offset': data.offset,
+      };
 
-    if (arr.length > 2) {
-      message['distance'] = Math.round(arr[2]);
+      if (data.topic == 'driver-positions-distance') {
+        message['distance'] = Math.round(arr[2]);
+      }
+
+      if (data.topic == 'driver-augmented') {
+        message['driver'] = arr[2];
+      }
+
+
+      io.sockets.emit('new message', message);
     }
-
-    io.sockets.emit('new message', message);
   });
 
 // Setup basic express server
