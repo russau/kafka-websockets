@@ -9,7 +9,7 @@ TODO
   create stream driverpositions (lat varchar, lon varchar) with (kafka_topic='driver-positions', value_format='delimited');
 
   create stream driveraugmented 
-  WITH (kafka_topic='driver-augmented', partitions=1, value_format='delimited')
+  WITH (kafka_topic='driver-augmented', value_format='delimited')
   AS
   SELECT driverpositions.lat, driverpositions.lon, driver.name 
   from driverpositions LEFT JOIN driver on driverpositions.rowkey = driver.rowkey;
@@ -34,6 +34,6 @@ TODO
          http://localhost:8088/ksql \
          -H "Content-Type: application/vnd.ksql.v1+json; charset=utf-8" \
          -d '{
-              "ksql": "create stream driveraugmented WITH (kafka_topic='"'"'driver-augmented'"'"', partitions=1, value_format='"'"'delimited'"'"') AS SELECT driverpositions.lat, driverpositions.lon, driver.name  from driverpositions LEFT JOIN driver on driverpositions.rowkey = driver.rowkey;"
+              "ksql": "create stream driveraugmented WITH (kafka_topic='"'"'driver-augmented'"'"', value_format='"'"'delimited'"'"') AS SELECT driverpositions.lat, driverpositions.lon, driver.name  from driverpositions LEFT JOIN driver on driverpositions.rowkey = driver.rowkey;"
               }'
   ```
