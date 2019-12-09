@@ -5,7 +5,7 @@ var maxTopicIndex = 0;
 var stream = Kafka.createReadStream({
   'group.id': 'webserver-01',
   'metadata.broker.list': bootstrapServers
-}, {}, {
+}, {'auto.offset.reset': 'earliest'}, {
   topics: topics,
   waitInterval: 0
 });
