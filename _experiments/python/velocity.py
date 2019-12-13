@@ -24,7 +24,8 @@ def pointAtPercent(p0, p1, percent):
 # http://www.gmap-pedometer.com?r=7428722
 # http://www.gmap-pedometer.com?r=7429821
 # http://www.gmap-pedometer.com?r=7429825
-r = requests.post('https://www.gmap-pedometer.com/gp/ajaxRoute/get', data = {'rId':'7429825'})
+# http://www.gmap-pedometer.com?r=7430753
+r = requests.post('https://www.gmap-pedometer.com/gp/ajaxRoute/get', data = {'rId':'7430753'})
 polyline = parse_qs(r.text)['polyline'][0].split('a')
 points = [[float(polyline[i]), float(polyline[i+1])] for i in range(0, len(polyline), 2)]
 points.append(points[0])
@@ -58,4 +59,7 @@ while True:
 velocity_points.append(points[-1]) 
 
 
-print(json.dumps(velocity_points, indent=2))
+# print(json.dumps(velocity_points, indent=2))
+
+for p in velocity_points:
+    print("%s,%s" % (p[0],p[1]))
