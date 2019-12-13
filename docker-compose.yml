@@ -25,59 +25,73 @@ services:
 
   producer1:
     container_name: producer1
-    build: ./node-producer
+    build: ./java-producer
     volumes:
-      - ./node-producer:/app
-      - /app/node_modules/
+      - ./java-producer/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
+      DRIVER_ID: driver-1
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
                       echo waiting for topic; \
                       done; \
-                      npm run start -- driver-1 drivers/1.json'"
+                      java -classpath \"lib/*\" clients.Producer'"
 
   producer2:
     container_name: producer2
-    build: ./node-producer
+    build: ./java-producer
     volumes:
-      - ./node-producer:/app
-      - /app/node_modules/
+      - ./java-producer/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
+      DRIVER_ID: driver-2
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
                       echo waiting for topic; \
                       done; \
-                      npm run start -- driver-2 drivers/2.json'"
+                      java -classpath \"lib/*\" clients.Producer'"
 
   producer3:
     container_name: producer3
-    build: ./node-producer
+    build: ./java-producer
     volumes:
-      - ./node-producer:/app
-      - /app/node_modules/
+      - ./java-producer/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
+      DRIVER_ID: driver-3
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
                       echo waiting for topic; \
                       done; \
-                      npm run start -- driver-3 drivers/3.json'"
+                      java -classpath \"lib/*\" clients.Producer'"
                         
   producer4:
     container_name: producer4
-    build: ./node-producer
+    build: ./java-producer
     volumes:
-      - ./node-producer:/app
-      - /app/node_modules/
+      - ./java-producer/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
+      DRIVER_ID: driver-4
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
                       echo waiting for topic; \
                       done; \
-                      npm run start -- driver-4 drivers/4.json'"
+                      java -classpath \"lib/*\" clients.Producer'"
+
+  producer5:
+    container_name: producer5
+    build: ./java-producer
+    volumes:
+      - ./java-producer/drivers:/app/project/drivers
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      DRIVER_ID: driver-5
+    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+                      do sleep 1; \
+                      echo waiting for topic; \
+                      done; \
+                      java -classpath \"lib/*\" clients.Producer'"
 
   # streams:
   #   container_name: streams
