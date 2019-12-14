@@ -1,44 +1,45 @@
 const Kafka = require('node-rdkafka');
 const bootstrapServers = process.env.BOOTSTRAP_SERVERS || 'localhost:29092';
-var topics = ['driver-positions', 'driver-positions-distance', 'driver-augmented'];
-var maxTopicIndex = 0;
-var stream = Kafka.createReadStream({
+const topics = [
+  'driver-positions', 'driver-positions-distance', 'driver-augmented',
+];
+let maxTopicIndex = 0;
+const stream = Kafka.createReadStream({
   'group.id': 'webserver-01',
-  'metadata.broker.list': bootstrapServers
+  'metadata.broker.list': bootstrapServers,
 }, {'auto.offset.reset': 'earliest'}, {
   topics: topics,
-  waitInterval: 0
+  waitInterval: 0,
 });
 
 stream.on('data', function(data) {
-    const topicIndex = topics.indexOf(data.topic);
-    maxTopicIndex = Math.max(topicIndex, maxTopicIndex);
-    
-    if (topicIndex==maxTopicIndex) {
-      const arr = data.value.toString().split(',');
-      const message = {
-        'topic': data.topic,
-        'key': data.key.toString(),
-        'latitude': parseFloat(arr[0]).toFixed(6),
-        'longitude': parseFloat(arr[1]).toFixed(6),
-        'timestamp': data.timestamp,
-        // "latency" : new Date().getTime() - data.timestamp,
-        'partition': data.partition,
-        'offset': data.offset,
-      };
+  const topicIndex = topics.indexOf(data.topic);
+  maxTopicIndex = Math.max(topicIndex, maxTopicIndex);
 
-      if (data.topic == 'driver-positions-distance') {
-        message['distance'] = Math.round(arr[2]);
-      }
+  if (topicIndex==maxTopicIndex) {
+    const arr = data.value.toString().split(',');
+    const message = {
+      'topic': data.topic,
+      'key': data.key.toString(),
+      'latitude': parseFloat(arr[0]).toFixed(6),
+      'longitude': parseFloat(arr[1]).toFixed(6),
+      'timestamp': data.timestamp,
+      // "latency" : new Date().getTime() - data.timestamp,
+      'partition': data.partition,
+      'offset': data.offset,
+    };
 
-      if (data.topic == 'driver-augmented') {
-        message['driver'] = arr[2];
-      }
-
-
-      io.sockets.emit('new message', message);
+    if (data.topic == 'driver-positions-distance') {
+      message['distance'] = Math.round(arr[2]);
     }
-  });
+
+    if (data.topic == 'driver-augmented') {
+      message['driver'] = arr[2];
+    }
+
+    io.sockets.emit('new message', message);
+  }
+});
 
 // Setup basic express server
 const express = require('express');
