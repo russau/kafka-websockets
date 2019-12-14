@@ -21,7 +21,7 @@ public class Producer {
   public static void main(String[] args) throws IOException, InterruptedException {
     System.out.println("*** Starting VP Producer ***");
 
-    Properties settings = new Properties();
+    final Properties settings = new Properties();
     String bootstrapServer = System.getenv("BOOTSTRAP_SERVERS");
     bootstrapServer = (bootstrapServer != null) ? bootstrapServer : "localhost:29092";
     String driverId  = System.getenv("DRIVER_ID");
@@ -42,7 +42,7 @@ public class Producer {
     }));
 
     int pos = 0;
-    String[] rows = Files.readAllLines(Paths.get(DRIVER_FILE_PREFIX + driverId + ".csv"),
+    final String[] rows = Files.readAllLines(Paths.get(DRIVER_FILE_PREFIX + driverId + ".csv"),
       Charset.forName("UTF-8")).toArray(new String[0]);
 
     while (true) {

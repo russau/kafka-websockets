@@ -33,7 +33,7 @@ public class TestingZone {
     System.out.println(">>> Starting the vp-streams-app Application");
 
     // TODO: add code here
-    Properties settings = new Properties();
+    final Properties settings = new Properties();
     String bootstrapServer = System.getenv("BOOTSTRAP_SERVERS");
     bootstrapServer = (bootstrapServer != null) ? bootstrapServer : "localhost:29092";
     settings.put(StreamsConfig.APPLICATION_ID_CONFIG, "vp-streams-app-1");
@@ -49,9 +49,9 @@ public class TestingZone {
     // https://kafka.apache.org/23/documentation/streams/developer-guide/memory-mgmt.html#record-caches-in-the-dsl
     settings.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "0");
 
-    Topology topology = getTopology();
+    final Topology topology = getTopology();
     System.out.println(topology.describe());
-    KafkaStreams streams = new KafkaStreams(topology, settings);
+    final KafkaStreams streams = new KafkaStreams(topology, settings);
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       System.out.println("<<< Stopping the vp-streams-app Application");
@@ -86,27 +86,27 @@ public class TestingZone {
   }
 
   private static Topology getTopology() {
-    StreamsBuilder builder = new StreamsBuilder();
+    final StreamsBuilder builder = new StreamsBuilder();
 
     // Aggregate ideas from
     // https://github.com/cloudboxlabs/blog-code/blob/master/citibikekafkastreams/src/main/java/com/cloudboxlabs/TurnoverRatio.java#L82
     // https://github.com/confluentinc/kafka-streams-examples/blob/5.3.1-post/src/main/java/io/confluent/examples/streams/interactivequeries/kafkamusic/KafkaMusicExample.java#L362
 
-    KStream<String, String> testing = builder.stream("driver-positions");
-    KTable<String, String> reduced = testing.groupByKey().aggregate(
+    final KStream<String, String> testing = builder.stream("driver-positions");
+    final KTable<String, String> reduced = testing.groupByKey().aggregate(
         () -> "0,0,0", (key, newValue, accumulator) -> {
-        Double latitude1 = Double.parseDouble(accumulator.split(",")[0]);
-        Double longitude1 = Double.parseDouble(accumulator.split(",")[1]);
+        final Double latitude1 = Double.parseDouble(accumulator.split(",")[0]);
+        final Double longitude1 = Double.parseDouble(accumulator.split(",")[1]);
         Double lastDistance = Double.parseDouble(accumulator.split(",")[2]);
 
-        Pattern pattern = Pattern.compile("([-+]?\\d*\\.\\d*),([-+]?\\d*\\.\\d*)");
-        Matcher matcher = pattern.matcher(newValue);
+        final Pattern pattern = Pattern.compile("([-+]?\\d*\\.\\d*),([-+]?\\d*\\.\\d*)");
+        final Matcher matcher = pattern.matcher(newValue);
         matcher.find();
-        Double latitude2 = Double.parseDouble(matcher.group(1));
-        Double longitude2 = Double.parseDouble(matcher.group(2));
+        final Double latitude2 = Double.parseDouble(matcher.group(1));
+        final Double longitude2 = Double.parseDouble(matcher.group(2));
 
         if (latitude1 != 0) {
-          Double distance = Geodesic.WGS84.Inverse(latitude1, longitude1,
+          final Double distance = Geodesic.WGS84.Inverse(latitude1, longitude1,
               latitude2, longitude2).s12;
           lastDistance += distance;
         }
@@ -115,7 +115,7 @@ public class TestingZone {
 
     reduced.toStream().to("driver-positions-distance");
 
-    Topology topology = builder.build();
+    final Topology topology = builder.build();
     return topology;
   }
 
