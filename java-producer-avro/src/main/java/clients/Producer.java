@@ -36,7 +36,7 @@ public class Producer {
     settings.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
     settings.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     settings.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
-    settings.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
+    settings.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://schema-registry:8081");
 
     final KafkaProducer<String, PositionValue> producer = new KafkaProducer<>(settings);
     
@@ -69,11 +69,11 @@ public class Producer {
     Try the command line tools:
 
     kafka-avro-console-consumer --bootstrap-server localhost:29092 \
-    --property schema.registry.url=http://localhost:8081 \
+    --property schema.registry.url=http://schema-registry:8081 \
     --topic driver-positions-avro --property print.key=true \
     --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
 
-    curl localhost:8081/subjects/driver-positions-avro-value/versions/1
+    curl schema-registry:8081/subjects/driver-positions-avro-value/versions/1
     */
 
   }

@@ -25,9 +25,9 @@ services:
 
   producer1:
     container_name: producer1
-    build: ./java-producer
+    build: ./java-producer-avro
     volumes:
-      - ./java-producer/drivers:/app/project/drivers
+      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-1
@@ -39,9 +39,9 @@ services:
 
   producer2:
     container_name: producer2
-    build: ./java-producer
+    build: ./java-producer-avro
     volumes:
-      - ./java-producer/drivers:/app/project/drivers
+      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-2
@@ -53,9 +53,9 @@ services:
 
   producer3:
     container_name: producer3
-    build: ./java-producer
+    build: ./java-producer-avro
     volumes:
-      - ./java-producer/drivers:/app/project/drivers
+      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-3
@@ -67,9 +67,9 @@ services:
                         
   producer4:
     container_name: producer4
-    build: ./java-producer
+    build: ./java-producer-avro
     volumes:
-      - ./java-producer/drivers:/app/project/drivers
+      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-4
@@ -81,9 +81,9 @@ services:
 
   producer5:
     container_name: producer5
-    build: ./java-producer
+    build: ./java-producer-avro
     volumes:
-      - ./java-producer/drivers:/app/project/drivers
+      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-5
@@ -101,9 +101,9 @@ services:
 
   webserver:
     container_name: webserver
-    build: ./webserver
+    build: ./webserver-avro
     volumes:
-      - ./webserver:/home/node/app
+      - ./webserver-avro:/home/node/app
       - /home/node/app/node_modules/
     ports:
       - 3000:3000
