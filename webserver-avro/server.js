@@ -15,11 +15,15 @@ const kafkaAvro = new KafkaAvro({
   kafkaBroker: bootstrapServers,
   schemaRegistry: 'http://schema-registry:8081',
 });
-kafkaAvro.init();
+kafkaAvro.init()
+    .then(function() {
+      console.log('Ready to use');
+    });
+
 // ///////
 
 const topics = [
-  'driver-positions-avro',
+  'driver-augmented',
 ];
 let maxTopicIndex = 0;
 
@@ -73,8 +77,12 @@ kafkaAvro.getConsumerStream({
           const message = {
             'topic': data.topic,
             'key': data.key.toString(),
-            'latitude': data.parsed.latitude,
-            'longitude': data.parsed.longitude,
+            'latitude': data.parsed.LATITUDE.double,
+            'longitude': data.parsed.LONGITUDE.double,
+            'firstname': data.parsed.FIRSTNAME.string,
+            'lastname': data.parsed.LASTNAME.string,
+            'make': data.parsed.MAKE.string,
+            'model': data.parsed.MODEL.string,
             'timestamp': data.timestamp,
             'partition': data.partition,
             'offset': data.offset,
@@ -104,5 +112,4 @@ app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
   console.log('new connection, socket.id: ' + socket.id);
 });
-
 

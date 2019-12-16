@@ -109,15 +109,14 @@ services:
       - 3000:3000
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
-    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+    command: "bash -c 'until curl schema-registry:8081/subjects/driver-augmented-value/versions/1 | grep schema ; \
                       do sleep 1; \
-                      echo waiting for topic; \
+                      echo waiting for schema; \
                       done; \
                       npm run start'"
 
   schema-registry:
     image: confluentinc/cp-schema-registry:5.3.1
-    hostname: schema-registry
     container_name: schema-registry
     ports:
       - "8081:8081"
@@ -127,7 +126,6 @@ services:
 
   ksql-server:
     image: confluentinc/cp-ksql-server:5.3.1
-    hostname: ksql-server
     container_name: ksql-server
     ports:
       - "8088:8088"
@@ -153,6 +151,39 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
 
+  postgres:
+    image: postgres:11.2-alpine
+    container_name: postgres
+    volumes:
+      - ./postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - 5432:5432
+
+  connect:
+    image: confluentinc/cp-kafka-connect:5.3.1
+    container_name: connect
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_GROUP_ID: "connect"
+      CONNECT_CONFIG_STORAGE_TOPIC: "connect-config"
+      CONNECT_OFFSET_STORAGE_TOPIC: "connect-offsets"
+      CONNECT_STATUS_STORAGE_TOPIC: "connect-status"
+      CONNECT_REPLICATION_FACTOR: 1
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.storage.StringConverter"
+      CONNECT_VALUE_CONVERTER: "io.confluent.connect.avro.AvroConverter"
+      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_PLUGIN_PATH: /usr/share/java
+      CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
+
+  # todo: the driver topic should be a compacted topic
   populate:
     image: confluentinc/cp-enterprise-kafka:5.3.1
     container_name: populate
@@ -164,6 +195,5 @@ services:
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver --partitions 3 --replication-factor 1 && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions --partitions 3 --replication-factor 1 && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions-distance --partitions 3 --replication-factor 1 && \
-                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-augmented --partitions 3 --replication-factor 1 && \
-                       cat /drivers.csv | kafka-console-producer --broker-list kafka:9092 --topic driver --property key.separator=: --property parse.key=true'"
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-augmented --partitions 3 --replication-factor 1'"
 

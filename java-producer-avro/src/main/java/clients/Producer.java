@@ -18,7 +18,7 @@ import solution.model.PositionValue;
 
 public class Producer {
   static final String DRIVER_FILE_PREFIX = "./drivers/";
-  static final String KAFKA_TOPIC = "driver-positions-avro";
+  static final String KAFKA_TOPIC = "driver-positions";
 
   /**
    * Java producer.
@@ -70,7 +70,7 @@ public class Producer {
 
     kafka-avro-console-consumer --bootstrap-server localhost:29092 \
     --property schema.registry.url=http://schema-registry:8081 \
-    --topic driver-positions-avro --property print.key=true \
+    --topic driver-positions --property print.key=true \
     --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
 
     curl schema-registry:8081/subjects/driver-positions-avro-value/versions/1
