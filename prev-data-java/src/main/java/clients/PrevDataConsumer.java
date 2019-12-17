@@ -48,8 +48,10 @@ public class PrevDataConsumer {
 
                 Map<TopicPartition, OffsetAndTimestamp> startOffsets = consumer.offsetsForTimes(timestampsToSearch); 
                 for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : startOffsets.entrySet()) {
-                    System.out.printf("Seeking partition %d to offset %d\n", entry.getKey().partition(), entry.getValue().offset());
-                    consumer.seek(entry.getKey(), entry.getValue().offset());
+                    if (entry.getValue() != null) {
+                        System.out.printf("Seeking partition %d to offset %d\n", entry.getKey().partition(), entry.getValue().offset());
+                        consumer.seek(entry.getKey(), entry.getValue().offset());
+                    }
                 }
             }
         };
