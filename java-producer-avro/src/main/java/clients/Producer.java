@@ -27,13 +27,11 @@ public class Producer {
     System.out.println("*** Starting VP Producer ***");
 
     final Properties settings = new Properties();
-    String bootstrapServer = System.getenv("BOOTSTRAP_SERVERS");
-    bootstrapServer = (bootstrapServer != null) ? bootstrapServer : "localhost:29092";
     String driverId  = System.getenv("DRIVER_ID");
     driverId = (driverId != null) ? driverId : "driver-1";
 
     settings.put(ProducerConfig.CLIENT_ID_CONFIG, driverId);
-    settings.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+    settings.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     settings.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     settings.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://schema-registry:8081");
@@ -66,7 +64,7 @@ public class Producer {
     /*
     Try the command line tools:
 
-    kafka-avro-console-consumer --bootstrap-server localhost:29092 \
+    kafka-avro-console-consumer --bootstrap-server kafka:9092 \
     --property schema.registry.url=http://schema-registry:8081 \
     --topic driver-positions --property print.key=true \
     --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer

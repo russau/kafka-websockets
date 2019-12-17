@@ -22,13 +22,11 @@ public class Producer {
     System.out.println("*** Starting VP Producer ***");
 
     final Properties settings = new Properties();
-    String bootstrapServer = System.getenv("BOOTSTRAP_SERVERS");
-    bootstrapServer = (bootstrapServer != null) ? bootstrapServer : "localhost:29092";
     String driverId  = System.getenv("DRIVER_ID");
     driverId = (driverId != null) ? driverId : "driver-1";
 
     settings.put(ProducerConfig.CLIENT_ID_CONFIG, driverId);
-    settings.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+    settings.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     settings.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     // settings.put("batch.size", 16384);

@@ -12,16 +12,12 @@ services:
     image: confluentinc/cp-enterprise-kafka:5.3.1
     container_name: kafka
     ports:
-      - 29092:29092
+      - 9092:9092
     environment:
       KAFKA_BROKER_ID: 101
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_LISTENERS: LISTENER_INT://0.0.0.0:9092,LISTENER_EXT://0.0.0.0:29092
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_INT://kafka:9092,LISTENER_EXT://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INT:PLAINTEXT,LISTENER_EXT:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INT
 
   producer1:
     container_name: producer1
@@ -29,7 +25,6 @@ services:
     volumes:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
-      BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-1
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
@@ -43,7 +38,6 @@ services:
     volumes:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
-      BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-2
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
@@ -57,7 +51,6 @@ services:
     volumes:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
-      BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-3
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
@@ -71,7 +64,6 @@ services:
     volumes:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
-      BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-4
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
@@ -85,7 +77,6 @@ services:
     volumes:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
-      BOOTSTRAP_SERVERS: kafka:9092
       DRIVER_ID: driver-5
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
                       do sleep 1; \
@@ -96,8 +87,7 @@ services:
   # streams:
   #   container_name: streams
   #   build: ./streams
-  #   environment:
-  #     BOOTSTRAP_SERVERS: kafka:9092
+
 
   webserver:
     container_name: webserver
@@ -107,8 +97,6 @@ services:
       - /home/node/app/node_modules/
     ports:
       - 3000:3000
-    environment:
-      BOOTSTRAP_SERVERS: kafka:9092
     command: "bash -c 'until curl schema-registry:8081/subjects/driver-augmented-avro-value/versions/1 | grep schema ; \
                       do sleep 1; \
                       echo waiting for schema; \

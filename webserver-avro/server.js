@@ -1,4 +1,3 @@
-const bootstrapServers = process.env.BOOTSTRAP_SERVERS || 'localhost:29092';
 // /////// using node-rdkafka and avsc to do the desearialization myself
 // const Kafka = require('node-rdkafka');
 // const avro = require('avsc');
@@ -12,7 +11,7 @@ const bootstrapServers = process.env.BOOTSTRAP_SERVERS || 'localhost:29092';
 // ///////
 const KafkaAvro = require('kafka-avro');
 const kafkaAvro = new KafkaAvro({
-  kafkaBroker: bootstrapServers,
+  kafkaBroker: 'kafka:9092',
   schemaRegistry: 'http://schema-registry:8081',
 });
 kafkaAvro.init()
@@ -63,7 +62,7 @@ let maxTopicIndex = 0;
 
 kafkaAvro.getConsumerStream({
   'group.id': 'webserver-01',
-  'metadata.broker.list': bootstrapServers,
+  'metadata.broker.list': 'kafka:9092',
 }, {'auto.offset.reset': 'earliest'}, {
   topics: topics,
   waitInterval: 0,

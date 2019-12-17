@@ -1,12 +1,11 @@
 const Kafka = require('node-rdkafka');
-const bootstrapServers = process.env.BOOTSTRAP_SERVERS || 'localhost:29092';
 const topics = [
   'driver-positions', 'driver-positions-distance', 'driver-augmented',
 ];
 let maxTopicIndex = 0;
 const stream = Kafka.createReadStream({
   'group.id': 'webserver-01',
-  'metadata.broker.list': bootstrapServers,
+  'metadata.broker.list': 'kafka:9092',
 }, {'auto.offset.reset': 'earliest'}, {
   topics: topics,
   waitInterval: 0,

@@ -42,7 +42,7 @@ producer.on('ready', () => {
 });
 
 producer.on('delivery-report', (err, report) => {
-  // Report of delivery statistics here:
+  // Report of delivery here:
   // console.log(report);
 });
 

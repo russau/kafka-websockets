@@ -34,10 +34,8 @@ public class TestingZone {
 
     // TODO: add code here
     final Properties settings = new Properties();
-    String bootstrapServer = System.getenv("BOOTSTRAP_SERVERS");
-    bootstrapServer = (bootstrapServer != null) ? bootstrapServer : "localhost:29092";
     settings.put(StreamsConfig.APPLICATION_ID_CONFIG, "vp-streams-app-1");
-    settings.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+    settings.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
         Serdes.String().getClass().getName());
     settings.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,

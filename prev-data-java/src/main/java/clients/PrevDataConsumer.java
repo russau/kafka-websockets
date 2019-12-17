@@ -22,9 +22,7 @@ public class PrevDataConsumer {
         
         Properties settings = new Properties();
         settings.put(ConsumerConfig.GROUP_ID_CONFIG, "prev-data-consumer");
-        String bootstrapServer = System.getenv("BOOTSTRAP_SERVERS");
-        bootstrapServer = (bootstrapServer != null) ? bootstrapServer : "localhost:29092";
-        settings.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer);
+        settings.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         settings.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         settings.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         settings.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
