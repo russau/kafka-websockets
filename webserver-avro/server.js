@@ -23,7 +23,7 @@ kafkaAvro.init()
 // ///////
 
 const topics = [
-  'driver-augmented',
+  'driver-augmented-avro',
 ];
 let maxTopicIndex = 0;
 

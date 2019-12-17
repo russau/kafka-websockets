@@ -18,7 +18,7 @@ import solution.model.PositionValue;
 
 public class Producer {
   static final String DRIVER_FILE_PREFIX = "./drivers/";
-  static final String KAFKA_TOPIC = "driver-positions";
+  static final String KAFKA_TOPIC = "driver-positions-avro";
 
   /**
    * Java producer.
@@ -53,9 +53,7 @@ public class Producer {
       final String key = driverId;
       final Double latitude1 = Double.parseDouble(rows[pos].split(",")[0]);
       final Double longitude1 = Double.parseDouble(rows[pos].split(",")[1]);
-      final PositionValue value = new PositionValue();
-      value.setLatitude(latitude1);
-      value.setLongitude(longitude1);
+      final PositionValue value = new PositionValue(latitude1, longitude1);
       final ProducerRecord<String, PositionValue> record = new ProducerRecord<>(
           KAFKA_TOPIC, key, value);
       producer.send(record, (md, e) -> {

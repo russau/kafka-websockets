@@ -16,7 +16,10 @@ curl -s -X POST \
                 "timestamp.column.name": "timestamp",
                 "table.types": "TABLE",
                 "numeric.mapping": "best_fit",
-                "transforms": "createKey,extractKey",
+                "transforms": "suffix,createKey,extractKey",
+                "transforms.suffix.type":"org.apache.kafka.connect.transforms.RegexRouter",
+                "transforms.suffix.regex":"(.*)",
+                "transforms.suffix.replacement":"$1-avro",
                 "transforms.createKey.type": "org.apache.kafka.connect.transforms.ValueToKey",
                 "transforms.createKey.fields": "driverkey",
                 "transforms.extractKey.type": "org.apache.kafka.connect.transforms.ExtractField$Key",
@@ -30,7 +33,7 @@ curl -s -X POST \
 ```
 kafka-avro-console-consumer --bootstrap-server localhost:29092 \
     --property schema.registry.url=http://localhost:8081 \
-    --topic driver --property print.key=true \
+    --topic driver-avro --property print.key=true \
     --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer \
     --from-beginning
 ```
@@ -39,15 +42,15 @@ kafka-avro-console-consumer --bootstrap-server localhost:29092 \
 
 ```
 CREATE TABLE DRIVER (firstname VARCHAR, lastname VARCHAR, make VARCHAR, model VARCHAR) 
-WITH (KAFKA_TOPIC='driver', VALUE_FORMAT='avro');
+WITH (KAFKA_TOPIC='driver-avro', VALUE_FORMAT='avro');
 
 SET 'auto.offset.reset' = 'earliest';
 
 CREATE STREAM DRIVERPOSITIONS (latitude DOUBLE, longitude DOUBLE) 
-WITH (kafka_topic='driver-positions', value_format='avro');
+WITH (kafka_topic='driver-positions-avro', value_format='avro');
 
 CREATE STREAM driveraugmented 
-WITH (kafka_topic='driver-augmented', value_format='avro')
+WITH (kafka_topic='driver-augmented-avro', value_format='avro')
 AS
 SELECT 
   driverpositions.latitude, 
@@ -57,7 +60,7 @@ SELECT
   driver.make,
   driver.model
 FROM driverpositions 
-LEFT JOIN driver on driverpositions.rowkey = driver.rowkey;
+JOIN driver on driverpositions.rowkey = driver.rowkey;
 ```
 
 ```
@@ -66,7 +69,7 @@ curl -X POST http://localhost:8088/ksql \
      -d @- << EOF | tr -d '\n'
         {
           "ksql": "CREATE TABLE DRIVER (firstname VARCHAR, lastname VARCHAR, make VARCHAR, model VARCHAR) 
-          WITH (KAFKA_TOPIC='driver', VALUE_FORMAT='avro');"
+          WITH (KAFKA_TOPIC='driver-avro', VALUE_FORMAT='avro');"
         }
 EOF
 
@@ -75,7 +78,7 @@ curl -X POST http://localhost:8088/ksql \
      -d @- << EOF | tr -d '\n'
         {
           "ksql": "CREATE STREAM DRIVERPOSITIONS (latitude DOUBLE, longitude DOUBLE) 
-          WITH (kafka_topic='driver-positions', value_format='avro');"
+          WITH (kafka_topic='driver-positions-avro', value_format='avro');"
         }
 EOF
 
@@ -84,7 +87,7 @@ curl -X POST http://localhost:8088/ksql \
      -d @- << EOF | tr -d '\n'
         {
           "ksql": "CREATE STREAM driveraugmented 
-          WITH (kafka_topic='driver-augmented', value_format='avro')
+          WITH (kafka_topic='driver-augmented-avro', value_format='avro')
           AS
           SELECT 
             driverpositions.latitude, 
@@ -94,17 +97,17 @@ curl -X POST http://localhost:8088/ksql \
             driver.make, 
             driver.model
           FROM driverpositions 
-          LEFT JOIN driver on driverpositions.rowkey = driver.rowkey;"
+          JOIN driver on driverpositions.rowkey = driver.rowkey;"
         }
 EOF
 ```
 
-### Check the `driver-augmented` topic
+### Check the `driver-augmented-avro` topic
 
 ```
 kafka-avro-console-consumer --bootstrap-server localhost:29092 \
     --property schema.registry.url=http://localhost:8081 \
-    --topic driver-augmented --property print.key=true \
+    --topic driver-augmented-avro --property print.key=true \
     --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer \
     --from-beginning
 ```

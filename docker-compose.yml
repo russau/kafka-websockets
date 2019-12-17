@@ -109,7 +109,7 @@ services:
       - 3000:3000
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
-    command: "bash -c 'until curl schema-registry:8081/subjects/driver-augmented-value/versions/1 | grep schema ; \
+    command: "bash -c 'until curl schema-registry:8081/subjects/driver-augmented-avro-value/versions/1 | grep schema ; \
                       do sleep 1; \
                       echo waiting for schema; \
                       done; \
@@ -187,13 +187,13 @@ services:
   populate:
     image: confluentinc/cp-enterprise-kafka:5.3.1
     container_name: populate
-    volumes:
-      - ./drivers.csv:/drivers.csv
     command: "bash -c 'echo Waiting for Kafka to be ready... && \
                        cub kafka-ready -b kafka:9092 1 300 && \
                        echo Creating topics... && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver --partitions 3 --replication-factor 1 && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions --partitions 3 --replication-factor 1 && \
-                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions-distance --partitions 3 --replication-factor 1 && \
-                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-augmented --partitions 3 --replication-factor 1'"
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-avro --partitions 3 --replication-factor 1 && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions-avro --partitions 3 --replication-factor 1 && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-distance-avro --partitions 3 --replication-factor 1 && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-augmented-avro --partitions 3 --replication-factor 1'"
 
