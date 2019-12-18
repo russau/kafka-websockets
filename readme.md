@@ -75,7 +75,7 @@ SELECT
   driver.make,
   driver.model
 FROM driverpositions 
-JOIN driver on driverpositions.rowkey = driver.rowkey;
+LEFT JOIN driver on driverpositions.rowkey = driver.rowkey;
 ```
 
 ```

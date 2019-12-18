@@ -78,14 +78,15 @@ kafkaAvro.getConsumerStream({
             'key': data.key.toString(),
             'latitude': data.parsed.LATITUDE.double,
             'longitude': data.parsed.LONGITUDE.double,
-            'firstname': data.parsed.FIRSTNAME.string,
-            'lastname': data.parsed.LASTNAME.string,
-            'make': data.parsed.MAKE.string,
-            'model': data.parsed.MODEL.string,
+            'firstname': data.parsed.FIRSTNAME ? data.parsed.FIRSTNAME.string : null,
+            'lastname': data.parsed.LASTNAME ? data.parsed.LASTNAME.string : null,
+            'make': data.parsed.MAKE ? data.parsed.MAKE.string : null,
+            'model': data.parsed.MODEL? data.parsed.MODEL.string : null,
             'timestamp': data.timestamp,
             'partition': data.partition,
             'offset': data.offset,
           };
+          console.log(message);
 
           io.sockets.emit('new message', message);
         }
