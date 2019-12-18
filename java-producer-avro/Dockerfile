@@ -7,7 +7,7 @@ RUN gradle build
 
 FROM openjdk:11.0.2-jre-slim
 RUN apt-get update && \
-apt-get install -y kafkacat
+apt-get install -y curl
 COPY --from=builder /home/gradle/project/build/distributions/project.tar /app/
 COPY drivers /app/project/drivers
 WORKDIR /app

@@ -26,9 +26,9 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-1
-    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
                       do sleep 1; \
-                      echo waiting for topic; \
+                      echo waiting for schema; \
                       done; \
                       java -classpath \"lib/*\" clients.Producer'"
 
@@ -39,9 +39,9 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-2
-    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
                       do sleep 1; \
-                      echo waiting for topic; \
+                      echo waiting for schema; \
                       done; \
                       java -classpath \"lib/*\" clients.Producer'"
 
@@ -52,9 +52,9 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-3
-    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
                       do sleep 1; \
-                      echo waiting for topic; \
+                      echo waiting for schema; \
                       done; \
                       java -classpath \"lib/*\" clients.Producer'"
                         
@@ -65,9 +65,9 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-4
-    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
                       do sleep 1; \
-                      echo waiting for topic; \
+                      echo waiting for schema; \
                       done; \
                       java -classpath \"lib/*\" clients.Producer'"
 
@@ -78,9 +78,9 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-5
-    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-augmented; \
+    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
                       do sleep 1; \
-                      echo waiting for topic; \
+                      echo waiting for schema; \
                       done; \
                       java -classpath \"lib/*\" clients.Producer'"
 
