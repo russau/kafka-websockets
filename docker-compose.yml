@@ -2,14 +2,14 @@
 version: '2'
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:5.3.1
+    image: confluentinc/cp-zookeeper:5.4.0-beta1
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
   kafka:
-    image: confluentinc/cp-enterprise-kafka:5.3.1
+    image: confluentinc/cp-enterprise-kafka:5.4.0-beta1
     container_name: kafka
     ports:
       - 9092:9092
@@ -104,7 +104,7 @@ services:
                       npm run start'"
 
   schema-registry:
-    image: confluentinc/cp-schema-registry:5.3.1
+    image: confluentinc/cp-schema-registry:5.4.0-beta1
     container_name: schema-registry
     ports:
       - "8081:8081"
@@ -112,8 +112,26 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'kafka:9092'
 
+  # ksqldb-server:
+  #   image: confluentinc/ksqldb-server:0.6.0
+  #   container_name: ksqldb-server
+  #   ports:
+  #     - "8088:8088"
+  #   environment:
+  #     KSQL_CONFIG_DIR: "/etc/ksql"
+  #     KSQL_LOG4J_OPTS: "-Dlog4j.configuration=file:/etc/ksql/log4j-rolling.properties"
+  #     KSQL_BOOTSTRAP_SERVERS: "kafka:9092"
+  #     KSQL_HOST_NAME: ksqldb-server
+  #     KSQL_APPLICATION_ID: "dev-class"
+  #     KSQL_LISTENERS: "http://0.0.0.0:8088"
+  #     KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+  #     KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+  #     KSQL_KSQL_CONNECT_URL: "connect:8083"
+  #     KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+  #     KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+
   ksql-server:
-    image: confluentinc/cp-ksql-server:5.3.1
+    image: confluentinc/cp-ksql-server:5.4.0-dist-1
     container_name: ksql-server
     ports:
       - "8088:8088"
@@ -128,6 +146,8 @@ services:
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+
+
 
   nginx:
     image: nginx:1.15-alpine
@@ -148,7 +168,7 @@ services:
       - 5432:5432
 
   connect:
-    image: confluentinc/cp-kafka-connect:5.3.1
+    image: confluentinc/cp-kafka-connect:5.4.0-beta1
     container_name: connect
     restart: always
     ports:
@@ -173,7 +193,7 @@ services:
 
   # todo: the driver topic should be a compacted topic
   populate:
-    image: confluentinc/cp-enterprise-kafka:5.3.1
+    image: confluentinc/cp-enterprise-kafka:5.4.0-beta1
     container_name: populate
     command: "bash -c 'echo Waiting for Kafka to be ready... && \
                        cub kafka-ready -b kafka:9092 1 300 && \
