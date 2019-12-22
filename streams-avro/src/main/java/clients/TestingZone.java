@@ -1,12 +1,12 @@
 package clients;
 
+import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
 import net.sf.geographiclib.Geodesic;
-import solution.model.PositionDistance;
-import solution.model.PositionValue;
 
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
@@ -20,8 +20,8 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
-
-import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
+import solution.model.PositionDistance;
+import solution.model.PositionValue;
 
 public class TestingZone {
 
@@ -36,8 +36,10 @@ public class TestingZone {
     final Properties settings = new Properties();
     settings.put(StreamsConfig.APPLICATION_ID_CONFIG, "vp-streams-app-1");
     settings.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
-    settings.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-    settings.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+    settings.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
+        Serdes.String().getClass().getName());
+    settings.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
+        Serdes.String().getClass().getName());
     // Disabling caching ensures we get a complete "changelog" from the
     // aggregate(...) step above (i.e.
     // every input event will have a corresponding output event.
@@ -74,7 +76,11 @@ public class TestingZone {
     // https://github.com/cloudboxlabs/blog-code/blob/master/citibikekafkastreams/src/main/java/com/cloudboxlabs/TurnoverRatio.java#L82
     // https://github.com/confluentinc/kafka-streams-examples/blob/5.3.1-post/src/main/java/io/confluent/examples/streams/interactivequeries/kafkamusic/KafkaMusicExample.java#L362
 
-    final KStream<String, PositionValue> testing = builder.stream("driver-positions-avro", Consumed.with(Serdes.String(), positionValueSerde));
+    final KStream<String, PositionValue> testing = builder.stream(
+        "driver-positions-avro",
+        Consumed.with(Serdes.String(),
+        positionValueSerde));
+
     final KTable<String, PositionDistance> reduced = testing.groupByKey().aggregate(
         () -> new PositionDistance(), (key, newValue, accumulator) -> {
         final Double latitude1 = accumulator.getLatitude();
@@ -89,9 +95,13 @@ public class TestingZone {
           lastDistance += distance;
         }
         return new PositionDistance(latitude2, longitude2, lastDistance);
-      }, Materialized.with(Serdes.String(), positionDistanceSerde)); // , Materialized.as("queryable-store-name")
+      }, Materialized.with(
+          Serdes.String(),
+          positionDistanceSerde)); // , Materialized.as("queryable-store-name")
 
-    reduced.toStream().to("driver-distance-avro", Produced.with(Serdes.String(), positionDistanceSerde));
+    reduced.toStream().to(
+        "driver-distance-avro",
+        Produced.with(Serdes.String(), positionDistanceSerde));
     final Topology topology = builder.build();
     return topology;
   }
