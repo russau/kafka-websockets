@@ -112,7 +112,7 @@ curl -X POST http://ksql-server:8088/ksql \
             driver.make, 
             driver.model
           FROM driverpositions 
-          JOIN driver on driverpositions.rowkey = driver.rowkey;"
+          LEFT JOIN driver on driverpositions.rowkey = driver.rowkey;"
         }
 EOF
 ```
