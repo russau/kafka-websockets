@@ -5,6 +5,7 @@ namespace DotnetProducerAvro
     using System.Threading;
     using System.Threading.Tasks;
     using Confluent.Kafka;
+    using Confluent.Kafka.SyncOverAsync;
     using Confluent.SchemaRegistry;
     using Confluent.SchemaRegistry.Serdes;
     using solution.model;
@@ -21,15 +22,19 @@ namespace DotnetProducerAvro
         /// This main does something.
         /// </summary>
         /// <param name="args">Not used.</param>
-        /// <returns>nothing.</returns>
-        public static async Task Main(string[] args)
+        public static void Main(string[] args)
         {
             var producerConfig = new ProducerConfig { BootstrapServers = "kafka:9092" };
             var schemaRegistryConfig = new SchemaRegistryConfig { Url = "http://schema-registry:8081" };
 
+            Action<DeliveryReport<string, PositionValue>> handler = r =>
+                Console.WriteLine(!r.Error.IsError
+                    ? $"Delivered message to {r.TopicPartitionOffset}"
+                    : $"Delivery Error: {r.Error.Reason}");
+
             using (var schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryConfig))
             using (var producer = new ProducerBuilder<string, PositionValue>(producerConfig)
-                .SetValueSerializer(new AvroSerializer<PositionValue>(schemaRegistry))
+                .SetValueSerializer(new AvroSerializer<PositionValue>(schemaRegistry).AsSyncOverAsync())
                 .Build())
             {
                 var lines = File.ReadAllLines(Path.Combine(DriverFilePrefix, "driver-1" + ".csv"));
@@ -41,14 +46,10 @@ namespace DotnetProducerAvro
                     double longitude1 = double.Parse(line.Split(",")[1]);
                     var position = new PositionValue { latitude = latitude1, longitude = longitude1 };
 
-                    await producer
-                        .ProduceAsync(KafkaTopic, new Message<string, PositionValue> { Key = "dotnet-1", Value = position })
-                        .ContinueWith(task =>
-                        {
-                            Console.WriteLine(task.IsFaulted
-                            ? $"error producing message: {task.Exception.Message}"
-                            : $"produced to: {task.Result.TopicPartitionOffset}");
-                        });
+                    producer.Produce(
+                        KafkaTopic,
+                        new Message<string, PositionValue> { Key = "dotnet-1", Value = position },
+                        handler);
                     Thread.Sleep(1000);
                     i = (i + 1) % lines.Length;
                 }
