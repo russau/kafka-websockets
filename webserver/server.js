@@ -1,8 +1,7 @@
 const Kafka = require('node-rdkafka');
 const topics = [
-  'driver-positions', 'driver-positions-distance', 'driver-augmented',
+  'driver-positions',
 ];
-let maxTopicIndex = 0;
 const stream = Kafka.createReadStream({
   'group.id': 'webserver-01',
   'metadata.broker.list': 'kafka:9092',
@@ -12,32 +11,17 @@ const stream = Kafka.createReadStream({
 });
 
 stream.on('data', function(data) {
-  const topicIndex = topics.indexOf(data.topic);
-  maxTopicIndex = Math.max(topicIndex, maxTopicIndex);
-
-  if (topicIndex==maxTopicIndex) {
-    const arr = data.value.toString().split(',');
-    const message = {
-      'topic': data.topic,
-      'key': data.key.toString(),
-      'latitude': parseFloat(arr[0]).toFixed(6),
-      'longitude': parseFloat(arr[1]).toFixed(6),
-      'timestamp': data.timestamp,
-      // "latency" : new Date().getTime() - data.timestamp,
-      'partition': data.partition,
-      'offset': data.offset,
-    };
-
-    if (data.topic == 'driver-positions-distance') {
-      message['distance'] = Math.round(arr[2]);
-    }
-
-    if (data.topic == 'driver-augmented') {
-      message['driver'] = arr[2];
-    }
-
-    io.sockets.emit('new message', message);
-  }
+  const arr = data.value.toString().split(',');
+  const message = {
+    'topic': data.topic,
+    'key': data.key.toString(),
+    'latitude': parseFloat(arr[0]).toFixed(6),
+    'longitude': parseFloat(arr[1]).toFixed(6),
+    'timestamp': data.timestamp,
+    'partition': data.partition,
+    'offset': data.offset,
+  };
+  io.sockets.emit('new message', message);
 });
 
 // Setup basic express server

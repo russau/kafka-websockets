@@ -22,6 +22,7 @@ kafkaAvro.init()
 // ///////
 
 const topics = [
+  'driver-positions-avro',
   'driver-augmented-avro',
 ];
 let maxTopicIndex = 0;
@@ -76,20 +77,29 @@ kafkaAvro.getConsumerStream({
           const message = {
             'topic': data.topic,
             'key': data.key.toString(),
-            'latitude': data.parsed.LATITUDE.double,
-            'longitude': data.parsed.LONGITUDE.double,
-            'firstname': data.parsed.FIRSTNAME ?
-              data.parsed.FIRSTNAME.string : null,
-            'lastname': data.parsed.LASTNAME ?
-              data.parsed.LASTNAME.string : null,
-            'make': data.parsed.MAKE ? data.parsed.MAKE.string : null,
-            'model': data.parsed.MODEL? data.parsed.MODEL.string : null,
             'timestamp': data.timestamp,
             'partition': data.partition,
             'offset': data.offset,
           };
-          console.log(message);
 
+          if (data.topic == 'driver-positions-avro') {
+            message['latitude'] = data.parsed.latitude;
+            message['longitude'] = data.parsed.longitude;
+          }
+
+          // different format for ksql avro stream
+          if (data.topic == 'driver-augmented-avro') {
+            message['latitude'] = data.parsed.LATITUDE.double;
+            message['longitude'] = data.parsed.LONGITUDE.double;
+            message['firstname'] = data.parsed.FIRSTNAME ?
+               data.parsed.FIRSTNAME.string : null;
+            message['lastname'] = data.parsed.LASTNAME ?
+               data.parsed.LASTNAME.string : null;
+            message['make'] = data.parsed.MAKE ?
+                data.parsed.MAKE.string : null;
+            message['model'] = data.parsed.MODEL ?
+                data.parsed.MODEL.string : null;
+          }
           io.sockets.emit('new message', message);
         }
       });
