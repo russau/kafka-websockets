@@ -26,6 +26,8 @@ namespace DotnetProducerAvro
         {
             var producerConfig = new ProducerConfig { BootstrapServers = "kafka:9092" };
             var schemaRegistryConfig = new SchemaRegistryConfig { Url = "http://schema-registry:8081" };
+            string driverId = System.Environment.GetEnvironmentVariable("DRIVER_ID");
+            driverId = (!string.IsNullOrEmpty(driverId)) ? driverId : "driver-2";
 
             Action<DeliveryReport<string, PositionValue>> handler = r =>
                 Console.WriteLine(!r.Error.IsError
@@ -46,13 +48,25 @@ namespace DotnetProducerAvro
                     double longitude1 = double.Parse(line.Split(",")[1]);
                     var position = new PositionValue { latitude = latitude1, longitude = longitude1 };
 
-                    producer.Produce(
-                        KafkaTopic,
-                        new Message<string, PositionValue> { Key = "dotnet-1", Value = position },
-                        handler);
+                    try
+                    {
+                        producer.Produce(
+                            KafkaTopic,
+                            new Message<string, PositionValue> { Key = driverId, Value = position },
+                            handler);
+                    }
+                    catch (ProduceException<string, string> e)
+                    {
+                        Console.WriteLine($"Delivery failed: {e.Error.Reason}");
+                        break;
+                    }
+
                     Thread.Sleep(1000);
                     i = (i + 1) % lines.Length;
                 }
+
+                // wait for up to 10 seconds for any inflight messages to be delivered.
+                producer.Flush(TimeSpan.FromSeconds(10));
             }
         }
     }
