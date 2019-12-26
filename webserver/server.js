@@ -3,7 +3,7 @@ const topics = [
   'driver-positions',
 ];
 const stream = Kafka.createReadStream({
-  'group.id': 'webserver-01',
+  'group.id': process.env.HOSTNAME,
   'metadata.broker.list': 'kafka:9092',
 }, {'auto.offset.reset': 'earliest'}, {
   topics: topics,

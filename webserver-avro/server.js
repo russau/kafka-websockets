@@ -62,7 +62,7 @@ let maxTopicIndex = 0;
 // ///////
 
 kafkaAvro.getConsumerStream({
-  'group.id': 'webserver-01',
+  'group.id': process.env.HOSTNAME,
   'metadata.broker.list': 'kafka:9092',
 }, {'auto.offset.reset': 'earliest'}, {
   topics: topics,
