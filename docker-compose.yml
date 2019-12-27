@@ -8,6 +8,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
+  # todo: configure metrics reporter
   kafka:
     image: confluentinc/cp-enterprise-kafka:5.4.0-beta1
     container_name: kafka
@@ -26,7 +27,7 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-1
-    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
                       do sleep 1; \
                       echo waiting for schema; \
                       done; \
@@ -39,7 +40,7 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-2
-    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
                       do sleep 1; \
                       echo waiting for schema; \
                       done; \
@@ -52,7 +53,7 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-3
-    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
                       do sleep 1; \
                       echo waiting for schema; \
                       done; \
@@ -65,7 +66,7 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-4
-    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
                       do sleep 1; \
                       echo waiting for schema; \
                       done; \
@@ -78,26 +79,69 @@ services:
       - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-5
-    command: "bash -c 'until curl schema-registry:8081/subjects/ ; \
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
                       do sleep 1; \
                       echo waiting for schema; \
                       done; \
                       java -classpath \"lib/*\" clients.Producer'"
 
-  # streams:
-  #   container_name: streams
-  #   build: ./streams
+  webserver1:
+    container_name: webserver1
+    build: ./webserver
+    volumes:
+      - ./webserver:/home/node/app
+      - /home/node/app/node_modules/
+    ports:
+      - 3001:3000
+    command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-positions; \
+                      do sleep 1; \
+                      echo waiting for topic; \
+                      done; \
+                      npm run start -- driver-1 drivers/1.json'"
 
-
-  webserver:
-    container_name: webserver
+  webserver2:
+    container_name: webserver2
     build: ./webserver-avro
     volumes:
       - ./webserver-avro:/home/node/app
       - /home/node/app/node_modules/
     ports:
-      - 3000:3000
-    command: "bash -c 'until curl schema-registry:8081/subjects/driver-augmented-avro-value/versions/1 | grep schema ; \
+      - 3002:3000
+    environment:
+      TOPIC: driver-positions-avro
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/driver-positions-avro-value/versions/1 | grep schema ; \
+                      do sleep 1; \
+                      echo waiting for schema; \
+                      done; \
+                      npm run start'"
+  
+  webserver3:
+    container_name: webserver3
+    build: ./webserver-avro
+    volumes:
+      - ./webserver-avro:/home/node/app
+      - /home/node/app/node_modules/
+    ports:
+      - 3003:3000
+    environment:
+      TOPIC: driver-distance-avro
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/driver-distance-avro-value/versions/1 | grep schema ; \
+                      do sleep 1; \
+                      echo waiting for schema; \
+                      done; \
+                      npm run start'"
+
+  webserver4:
+    container_name: webserver4
+    build: ./webserver-avro
+    volumes:
+      - ./webserver-avro:/home/node/app
+      - /home/node/app/node_modules/
+    ports:
+      - 3004:3000
+    environment:
+      TOPIC: driver-augmented-avro
+    command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/driver-augmented-avro-value/versions/1 | grep schema ; \
                       do sleep 1; \
                       echo waiting for schema; \
                       done; \
@@ -147,17 +191,15 @@ services:
       KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
 
-
-
-  nginx:
-    image: nginx:1.15-alpine
-    container_name: nginx
-    depends_on:
-      - webserver
-    ports:
-      - 80:8080
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
+  # nginx:
+  #   image: nginx:1.15-alpine
+  #   container_name: nginx
+  #   depends_on:
+  #     - webserver
+  #   ports:
+  #     - 80:8080
+  #   volumes:
+  #     - ./nginx/conf.d:/etc/nginx/conf.d
 
   postgres:
     image: postgres:11.2-alpine
@@ -191,6 +233,25 @@ services:
       CONNECT_PLUGIN_PATH: /usr/share/java
       CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
 
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:5.4.0-beta1
+    container_name: control-center
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092
+      CONTROL_CENTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_REPLICATION: 1
+      CONTROL_CENTER_COMMAND_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_STREAMS_NUM_STREAM_THREADS: 1
+      CONTROL_CENTER_STREAMS_CONSUMER_REQUEST_TIMEOUT_MS: "960032"
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      CONTROL_CENTER_CONNECT_CLUSTER: "connect:8083"
+      
   # todo: the driver topic should be a compacted topic
   populate:
     image: confluentinc/cp-enterprise-kafka:5.4.0-beta1
