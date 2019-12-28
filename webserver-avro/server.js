@@ -9,10 +9,10 @@ kafkaAvro.init()
     });
 
 const topics = [
-  process.env.TOPIC
+  process.env.TOPIC,
 ];
 
-console.log("subscribing to ", topics);
+console.log('subscribing to ', topics);
 kafkaAvro.getConsumerStream({
   'group.id': process.env.HOSTNAME,
   'metadata.broker.list': 'kafka:9092',
@@ -22,7 +22,6 @@ kafkaAvro.getConsumerStream({
 })
     .then(function(stream) {
       stream.on('data', function(data) {
-        const topicIndex = topics.indexOf(data.topic);
         const message = {
           'topic': data.topic,
           'key': data.key.toString(),
@@ -30,9 +29,11 @@ kafkaAvro.getConsumerStream({
           'partition': data.partition,
           'offset': data.offset,
         };
-        
-        message['latitude'] = data.parsed.latitude || data.parsed.LATITUDE.double;
-        message['longitude'] = data.parsed.longitude || data.parsed.LONGITUDE.double;
+
+        message['latitude'] = data.parsed.latitude ||
+          data.parsed.LATITUDE.double;
+        message['longitude'] = data.parsed.longitude ||
+          data.parsed.LONGITUDE.double;
 
         if (data.topic == 'driver-distance-avro') {
           message['distance'] = Math.round(data.parsed.distance);
