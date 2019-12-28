@@ -29,6 +29,8 @@ public class Producer {
     settings.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     settings.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    settings.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
+        "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor");
     // settings.put("batch.size", 16384);
     // settings.put("linger.ms", 5000);
 

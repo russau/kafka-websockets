@@ -23,6 +23,8 @@ public class Consumer {
     settings.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     settings.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     settings.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    settings.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG,
+        "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor");
 
     final KafkaConsumer<String, String> consumer = new KafkaConsumer<>(settings);
 

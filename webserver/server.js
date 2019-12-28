@@ -5,6 +5,7 @@ const topics = [
 const stream = Kafka.createReadStream({
   'group.id': process.env.HOSTNAME,
   'metadata.broker.list': 'kafka:9092',
+  'plugin.library.paths': 'monitoring-interceptor',
 }, {'auto.offset.reset': 'earliest'}, {
   topics: topics,
   waitInterval: 0,

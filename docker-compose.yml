@@ -19,6 +19,8 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_METRIC_REPORTERS: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka:9092"
 
   producer1:
     container_name: producer1
@@ -259,9 +261,8 @@ services:
     command: "bash -c 'echo Waiting for Kafka to be ready... && \
                        cub kafka-ready -b kafka:9092 1 300 && \
                        echo Creating topics... && \
-                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver --partitions 3 --replication-factor 1 && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions --partitions 3 --replication-factor 1 && \
-                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-avro --partitions 3 --replication-factor 1 && \
+                       kafka-topics --bootstrap-server kafka:9092 --create --topic driver-avro --partitions 3 --replication-factor 1 --config cleanup.policy=compact && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver-positions-avro --partitions 3 --replication-factor 1 && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver-distance-avro --partitions 3 --replication-factor 1 && \
                        kafka-topics --bootstrap-server kafka:9092 --create --topic driver-augmented-avro --partitions 3 --replication-factor 1'"
