@@ -1,3 +1,12 @@
+### TODO
+
+* lots more commenting
+* align all the producer / consumer output, e.g. `"*** Starting VP Producer ***"`
+* remove all references to `VP`
+* Better package names for avro generated stuff, rename `TestingZone`
+* consistent consumer group ids - e.g `java-consumer` ?
+
+
 ### Hosts file
 
 If you are running this on your laptop add these entries to your `/etc/hosts` file.
@@ -214,7 +223,7 @@ Check `kafka-topics --bootstrap-server kafka:9092 --list`. What is the new topic
 
 What is in the folder `/tmp/kafka-streams/vp-streams-app-1/`. (TODO: Double check the folder location on Ubuntu.)
 
-In this exercise the topics `driver-avro` and `driver-positions-avro` are joined - what are the properties do the topics need to common for a successful join? (copartitioned: same key, same number of partitions, extra points: same partitioning algoithm.)
+In this exercise the topics `driver-avro` and `driver-positions-avro` are joined - what properties do the topics need in common for a successful join? (copartitioned: same key, same number of partitions, extra points: same partitioning algorithm.)
 
 
 #### KSQL join
