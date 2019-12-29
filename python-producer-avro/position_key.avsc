@@ -1,0 +1,7 @@
+{"namespace": "solution.model",
+    "type": "record",
+    "name": "PositionKey",
+    "fields": [
+        {"name": "key", "type": "string"}
+    ]
+}
