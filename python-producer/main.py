@@ -13,6 +13,7 @@ print("Starting Producer (Python)")
 
 producer = Producer({
     'bootstrap.servers': 'kafka:9092',
+    'plugin.library.paths': 'monitoring-interceptor',
     'partitioner': 'murmur2_random'
 })
 

@@ -9,6 +9,7 @@ java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml str
 pushd webserver ; npm run pretest ; popd
 pushd webserver-avro ; npm run pretest ; popd
 pushd node-producer ; npm run pretest ; popd
+pushd python-consumer ; python3 -m pylint main.py ; popd
 pushd python-producer ; python3 -m pylint main.py ; popd
 pushd python-producer-avro ; python3 -m pylint main.py ; popd
 pushd dotnet-producer ; dotnet build  --no-incremental ; popd
