@@ -8,7 +8,8 @@ print("Starting Consumer (Python)")
 consumer = Consumer({
     'bootstrap.servers': 'kafka:9092',
     'plugin.library.paths': 'monitoring-interceptor',
-    'group.id': 'python-consumer'
+    'group.id': 'python-consumer',
+    'auto.offset.reset': 'earliest'
 })
 
 consumer.subscribe([KAFKA_TOPIC])
