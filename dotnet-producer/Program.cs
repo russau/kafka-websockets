@@ -6,7 +6,7 @@
     using Confluent.Kafka;
 
     /// <summary>
-    /// This class does something.
+    /// Dotnet producer.
     /// </summary>
     public class Program
     {
@@ -14,21 +14,23 @@
         private const string KafkaTopic = "driver-positions";
 
         /// <summary>
-        /// This main does something.
+        /// Main method for console app.
         /// </summary>
-        /// <param name="args">Not used.</param>
+        /// <param name="args">No arguments used.</param>
         public static void Main(string[] args)
         {
-            var conf = new ProducerConfig { BootstrapServers = "kafka:9092" };
+            var producerConfig = new ProducerConfig { BootstrapServers = "kafka:9092", PluginLibraryPaths = "monitoring-interceptor" };
             string driverId = System.Environment.GetEnvironmentVariable("DRIVER_ID");
             driverId = (!string.IsNullOrEmpty(driverId)) ? driverId : "driver-2";
 
             Action<DeliveryReport<string, string>> handler = r =>
                 Console.WriteLine(!r.Error.IsError
-                    ? $"Delivered message to {r.TopicPartitionOffset}"
+                    ? $"Delivered message: {r.Message.Value}"
                     : $"Delivery Error: {r.Error.Reason}");
 
-            using (var producer = new ProducerBuilder<string, string>(conf).Build())
+            using (var producer = new ProducerBuilder<string, string>(producerConfig)
+            .SetLogHandler((_, m) => Console.Write(m.ToString()))
+            .Build())
             {
                 var lines = File.ReadAllLines(Path.Combine(DriverFilePrefix, driverId + ".csv"));
                 int i = 0;
