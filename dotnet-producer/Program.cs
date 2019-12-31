@@ -28,9 +28,7 @@
                     ? $"Delivered message: {r.Message.Value}"
                     : $"Delivery Error: {r.Error.Reason}");
 
-            using (var producer = new ProducerBuilder<string, string>(producerConfig)
-            .SetLogHandler((_, m) => Console.Write(m.ToString()))
-            .Build())
+            using (var producer = new ProducerBuilder<string, string>(producerConfig).Build())
             {
                 var lines = File.ReadAllLines(Path.Combine(DriverFilePrefix, driverId + ".csv"));
                 int i = 0;
