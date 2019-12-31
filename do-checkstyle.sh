@@ -13,5 +13,6 @@ pushd python-consumer ; python3 -m pylint main.py ; popd
 pushd python-consumer-avro ; python3 -m pylint main.py ; popd
 pushd python-producer ; python3 -m pylint main.py ; popd
 pushd python-producer-avro ; python3 -m pylint main.py ; popd
+pushd dotnet-consumer ; dotnet build  --no-incremental ; popd
 pushd dotnet-producer ; dotnet build  --no-incremental ; popd
 pushd dotnet-producer-avro ; dotnet build  --no-incremental ; popd
