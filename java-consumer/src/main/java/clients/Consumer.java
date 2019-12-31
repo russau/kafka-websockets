@@ -15,10 +15,10 @@ public class Consumer {
    * Java consumer.
    */
   public static void main(String[] args) {
-    System.out.println("*** Starting Consumer ***");
+    System.out.println("Starting Java Consumer.");
 
     final Properties settings = new Properties();
-    settings.put(ConsumerConfig.GROUP_ID_CONFIG, "consumer");
+    settings.put(ConsumerConfig.GROUP_ID_CONFIG, "java-consumer");
     settings.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     settings.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -33,11 +33,12 @@ public class Consumer {
       while (true) {
         final ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
         for (ConsumerRecord<String, String> record : records) {
-          System.out.printf("%s,%s\n", record.key(), record.value());
+          System.out.printf("Key:%s Value:%s [partition %s]\n",
+              record.key(), record.value(), record.partition());
         }
       }
     } finally {
-      System.out.println("*** Ending Consumer ***");
+      System.out.println("Closing consumer.");
       consumer.close();
     }
   }

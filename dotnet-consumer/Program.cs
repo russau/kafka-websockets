@@ -28,7 +28,7 @@
                 PluginLibraryPaths = "monitoring-interceptor",
             };
 
-            using (var consumer = new ConsumerBuilder<Ignore, string>(consumerConfig).Build())
+            using (var consumer = new ConsumerBuilder<string, string>(consumerConfig).Build())
             {
                 consumer.Subscribe(KafkaTopic);
 
@@ -46,7 +46,7 @@
                         try
                         {
                             var cr = consumer.Consume(cts.Token);
-                            Console.WriteLine($"Consumed message '{cr.Value}' at: '{cr.TopicPartitionOffset}'.");
+                            Console.WriteLine($"Key:{cr.Key} Value:{cr.Value} [partition {cr.Partition.Value}]");
                         }
                         catch (ConsumeException e)
                         {
