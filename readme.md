@@ -1,3 +1,10 @@
+### What's changed?
+
+* New approach to labs: less copy paste, and more learner challenges.
+* More languages: Java, python and .net implementations of the producer, consumer and avro exercises.
+* Building something end to end. Each exercise adds a new feature to the labs application.
+* Linted code.  All the code in the exercises has been checked with Java Checkstyle, Python pylint or .net Stylecop for neater code.
+
 ### TODO
 
 * lots more commenting
@@ -18,6 +25,8 @@ If you are running this on your laptop add these entries to your `/etc/hosts` fi
 127.0.0.1 postgres
 127.0.0.1 ksql-server
 ```
+
+Note: the librdkafka based clients will need the monitoring interceptors installed https://docs.confluent.io/current/control-center/installation/clients.html#librdkafka-based-clients.
 
 ### Exercise Ideas
 
