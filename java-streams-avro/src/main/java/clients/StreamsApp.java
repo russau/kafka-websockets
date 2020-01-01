@@ -1,5 +1,8 @@
 package clients;
 
+import clients.avro.PositionDistance;
+import clients.avro.PositionValue;
+
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 
 import java.util.Collections;
@@ -20,10 +23,7 @@ import org.apache.kafka.streams.kstream.KTable;
 import org.apache.kafka.streams.kstream.Materialized;
 import org.apache.kafka.streams.kstream.Produced;
 
-import solution.model.PositionDistance;
-import solution.model.PositionValue;
-
-public class TestingZone {
+public class StreamsApp {
 
   /**
    * Our first streams app.
@@ -32,7 +32,6 @@ public class TestingZone {
 
     System.out.println(">>> Starting the vp-streams-app Application");
 
-    // TODO: add code here
     final Properties settings = new Properties();
     settings.put(StreamsConfig.APPLICATION_ID_CONFIG, "vp-streams-app-1");
     settings.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
@@ -48,6 +47,7 @@ public class TestingZone {
     settings.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, "0");
 
     final Topology topology = getTopology();
+    // you can paste the topology into this site for a vizualization: https://zz85.github.io/kafka-streams-viz/
     System.out.println(topology.describe());
     final KafkaStreams streams = new KafkaStreams(topology, settings);
 
