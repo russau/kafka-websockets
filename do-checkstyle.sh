@@ -4,8 +4,7 @@ java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml jav
 java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml java-consumer-prev/src/
 java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml java-producer/src/
 java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml java-producer-avro/src/
-java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml streams/src/
-java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml streams-avro/src/
+java -jar checkstyle/checkstyle-8.24-all.jar -c checkstyle/google_checks.xml java-streams-avro/src/
 pushd webserver ; npm run pretest ; popd
 pushd webserver-avro ; npm run pretest ; popd
 pushd node-producer ; npm run pretest ; popd
