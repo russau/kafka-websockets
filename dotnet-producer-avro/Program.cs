@@ -23,6 +23,7 @@ namespace DotnetProducerAvro
         /// <param name="args">No arguments used.</param>
         public static void Main(string[] args)
         {
+            Console.WriteLine("Starting .net Avro producer.");
             var producerConfig = new ProducerConfig { BootstrapServers = "kafka:9092", PluginLibraryPaths = "monitoring-interceptor" };
             var schemaRegistryConfig = new SchemaRegistryConfig { Url = "http://schema-registry:8081" };
             string driverId = System.Environment.GetEnvironmentVariable("DRIVER_ID");
@@ -30,7 +31,7 @@ namespace DotnetProducerAvro
 
             Action<DeliveryReport<string, PositionValue>> handler = r =>
                 Console.WriteLine(!r.Error.IsError
-                    ? $"Delivered message: {r.Message.Value.latitude},{r.Message.Value.longitude}"
+                    ? $"Sent Key:{r.Message.Key} Latitude:{r.Message.Value.latitude} Longitude:{r.Message.Value.longitude}"
                     : $"Delivery Error: {r.Error.Reason}");
 
             using (var schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryConfig))
@@ -38,6 +39,13 @@ namespace DotnetProducerAvro
                 .SetValueSerializer(new AvroSerializer<PositionValue>(schemaRegistry).AsSyncOverAsync())
                 .Build())
             {
+                Console.CancelKeyPress += (sender, e) =>
+                {
+                    // wait for up to 10 seconds for any inflight messages to be delivered.
+                    Console.WriteLine("Flushing producer and exiting.");
+                    producer.Flush(TimeSpan.FromSeconds(10));
+                };
+
                 var lines = File.ReadAllLines(Path.Combine(DriverFilePrefix, "driver-1" + ".csv"));
                 int i = 0;
                 while (true)
@@ -63,9 +71,6 @@ namespace DotnetProducerAvro
                     Thread.Sleep(1000);
                     i = (i + 1) % lines.Length;
                 }
-
-                // wait for up to 10 seconds for any inflight messages to be delivered.
-                producer.Flush(TimeSpan.FromSeconds(10));
             }
         }
     }

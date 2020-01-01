@@ -24,7 +24,7 @@ public class Producer {
    * Java producer.
    */
   public static void main(String[] args) throws IOException, InterruptedException {
-    System.out.println("*** Starting VP Producer ***");
+    System.out.println("Starting Java Avro producer.");
 
     final Properties settings = new Properties();
     String driverId  = System.getenv("DRIVER_ID");
@@ -39,7 +39,7 @@ public class Producer {
     final KafkaProducer<String, PositionValue> producer = new KafkaProducer<>(settings);
     
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      System.out.println("### Stopping VP Producer ###");
+      System.out.println("Closing producer.");
       producer.close();
     }));
 
@@ -55,7 +55,8 @@ public class Producer {
       final ProducerRecord<String, PositionValue> record = new ProducerRecord<>(
           KAFKA_TOPIC, key, value);
       producer.send(record, (md, e) -> {
-        System.out.println(String.format("Sent [%s] %s", key, value));
+        System.out.println(String.format("Sent Key:%s Latitude:%s Longitude:%s",
+            key, value.getLatitude(), value.getLongitude()));
       });
       Thread.sleep(1000);
       pos = (pos + 1) % rows.length;

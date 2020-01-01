@@ -10,7 +10,7 @@ DRIVER_FILE_PREFIX = "./drivers/"
 KAFKA_TOPIC = "driver-positions-pyavro"
 DRIVER_ID = os.getenv("DRIVER_ID", "driver-3")
 
-print("Starting Avro Producer (Python)")
+print("Starting Python Avro producer.")
 
 value_schema = avro.load("position_value.avsc")
 key_schema = avro.load("position_key.avsc")
@@ -24,17 +24,9 @@ producer = AvroProducer({
                         , default_key_schema=key_schema
                         , default_value_schema=value_schema)
 
-def delivery_report(err, msg):
-    """ Called once for each message produced to indicate delivery result.
-        Triggered by poll() or flush(). """
-    if err is not None:
-        print('Message delivery failed: {}'.format(err))
-    else:
-        print('Mesassge written [partition {}]'.format(msg.partition()))
-
 def exit_handler():
     """Run this on exit"""
-    print("Stopping Producer (Python)")
+    print("Flushing producer and exiting.")
     # Wait for any outstanding messages to be delivered and delivery report
     # callbacks to be triggered.
     producer.flush()
@@ -49,13 +41,17 @@ while True:
     line = lines[pos]
     # Trigger any available delivery report callbacks from previous produce() calls
     producer.poll(0)
+    key = {"key" : DRIVER_ID}
     latitude = line.split(",")[0].strip()
     longitude = line.split(",")[1].strip()
+    value = {"latitude" : float(latitude), "longitude" : float(longitude)}
     producer.produce(
         topic=KAFKA_TOPIC,
-        value={"latitude" : float(latitude), "longitude" : float(longitude)},
-        key={"key" : DRIVER_ID},
-        callback=delivery_report)
+        value=value,
+        key=key,
+        callback=lambda err, msg:
+        print("Sent Key:{} Value:{}".format(key, value) if err is None else err)
+        )
     sleep(1)
     pos = (pos + 1) % len(lines)
 
