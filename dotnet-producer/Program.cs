@@ -19,17 +19,25 @@
         /// <param name="args">No arguments used.</param>
         public static void Main(string[] args)
         {
+            Console.WriteLine("Starting .net producer.");
             var producerConfig = new ProducerConfig { BootstrapServers = "kafka:9092", PluginLibraryPaths = "monitoring-interceptor" };
             string driverId = System.Environment.GetEnvironmentVariable("DRIVER_ID");
             driverId = (!string.IsNullOrEmpty(driverId)) ? driverId : "driver-2";
 
             Action<DeliveryReport<string, string>> handler = r =>
                 Console.WriteLine(!r.Error.IsError
-                    ? $"Delivered message: {r.Message.Value}"
+                    ? $"Sent Key:{r.Message.Key} Value:{r.Message.Value}"
                     : $"Delivery Error: {r.Error.Reason}");
 
             using (var producer = new ProducerBuilder<string, string>(producerConfig).Build())
             {
+                Console.CancelKeyPress += (sender, e) =>
+                {
+                    // wait for up to 10 seconds for any inflight messages to be delivered.
+                    Console.WriteLine("Flushing producer and exiting.");
+                    producer.Flush(TimeSpan.FromSeconds(10));
+                };
+
                 var lines = File.ReadAllLines(Path.Combine(DriverFilePrefix, driverId + ".csv"));
                 int i = 0;
                 while (true)
@@ -48,9 +56,6 @@
                     Thread.Sleep(1000);
                     i = (i + 1) % lines.Length;
                 }
-
-                // wait for up to 10 seconds for any inflight messages to be delivered.
-                producer.Flush(TimeSpan.FromSeconds(10));
             }
         }
     }

@@ -9,7 +9,7 @@ DRIVER_FILE_PREFIX = "./drivers/"
 KAFKA_TOPIC = "driver-positions"
 DRIVER_ID = os.getenv("DRIVER_ID", "driver-3")
 
-print("Starting Producer (Python)")
+print("Starting Python producer.")
 
 producer = Producer({
     'bootstrap.servers': 'kafka:9092',
@@ -23,12 +23,12 @@ def delivery_report(err, msg):
     if err is not None:
         print('Message delivery failed: {}'.format(err))
     else:
-        print(' {} [partition {}]'.format(msg.value().decode(), msg.partition()))
+        print('Sent Key:{} Value:{}'.format(msg.key().decode(), msg.value().decode()))
 
 
 def exit_handler():
     """Run this on exit"""
-    print("Stopping Producer (Python)")
+    print("Flushing producer and exiting.")
     # Wait for any outstanding messages to be delivered and delivery report
     # callbacks to be triggered.
     producer.flush()
