@@ -4,29 +4,40 @@ from confluent_kafka.avro.serializer import SerializerError
 
 KAFKA_TOPIC = "driver-positions-pyavro"
 
-print("Starting Avro Consumer (Python)")
+print("Starting Python Avro Consumer.")
 
 consumer = AvroConsumer({
     'bootstrap.servers': 'kafka:9092',
     'plugin.library.paths': 'monitoring-interceptor',
-    'group.id': 'python-avro-consumer',
+    'group.id': 'python-consumer-avro',
     'auto.offset.reset': 'earliest',
     'schema.registry.url': 'http://127.0.0.1:8081'
 })
 
 consumer.subscribe([KAFKA_TOPIC])
 
-while True:
-    try:
-        msg = consumer.poll(1.0)
-    except SerializerError as ex:
-        print("Message deserialization failed for {}: {}".format(msg, ex))
-        break
+try:
+    while True:
+        try:
+            msg = consumer.poll(1.0)
+        except SerializerError as ex:
+            print("Message deserialization failed for {}: {}".format(msg, ex))
+            break
 
-    if msg is None:
-        continue
-    if msg.error():
-        print("Consumer error: {}".format(msg.error()))
-        continue
+        if msg is None:
+            continue
+        if msg.error():
+            print("Consumer error: {}".format(msg.error()))
+            continue
 
-    print('Received message: {}'.format(msg.value()))
+        print("Key:{} Value:{} [partition {}]".format(
+            msg.key(),
+            msg.value(),
+            msg.partition()
+        ))
+except KeyboardInterrupt:
+    pass
+finally:
+    # Leave group and commit final offsets
+    print("Closing consumer.")
+    consumer.close()

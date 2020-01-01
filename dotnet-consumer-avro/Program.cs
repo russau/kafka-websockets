@@ -21,12 +21,12 @@
         /// <param name="args">No arguments used.</param>
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starting .net avro consumer.");
+            Console.WriteLine("Starting .net Avro consumer.");
 
             var consumerConfig = new ConsumerConfig
             {
                 BootstrapServers = "kafka:9092",
-                GroupId = "csharp-avro-consumer",
+                GroupId = "csharp-consumer-avro",
                 AutoOffsetReset = AutoOffsetReset.Earliest,
                 PluginLibraryPaths = "monitoring-interceptor",
             };
@@ -53,7 +53,7 @@
                         try
                         {
                             var cr = consumer.Consume(cts.Token);
-                            Console.WriteLine($"Consumed message '{cr.Value.latitude} {cr.Value.longitude}' at: '{cr.TopicPartitionOffset}'.");
+                            Console.WriteLine($"Key:{cr.Key} Latitude:{cr.Value.latitude} Longitude:{cr.Value.longitude} [partition {cr.Partition.Value}]");
                         }
                         catch (ConsumeException e)
                         {

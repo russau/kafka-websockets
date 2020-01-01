@@ -22,16 +22,18 @@ public class Consumer {
    * Java consumer.
    */
   public static void main(String[] args) {
-    System.out.println("*** Starting Consumer ***");
+    System.out.println("Starting Java Avro Consumer.");
 
     final Properties settings = new Properties();
-    settings.put(ConsumerConfig.GROUP_ID_CONFIG, "consumer");
+    settings.put(ConsumerConfig.GROUP_ID_CONFIG, "java-consumer-avro");
     settings.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     settings.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     settings.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaAvroDeserializer.class);
     settings.put(KafkaAvroDeserializerConfig.SPECIFIC_AVRO_READER_CONFIG, "true");
     settings.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://schema-registry:8081");
+    settings.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG,
+        "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor");
 
     final KafkaConsumer<String, PositionValue> consumer = new KafkaConsumer<>(settings);
 
@@ -41,14 +43,15 @@ public class Consumer {
         final ConsumerRecords<String, PositionValue> records =
             consumer.poll(Duration.ofMillis(100));
         for (ConsumerRecord<String, PositionValue> record : records) {
-          System.out.printf("%s,%s,%s\n",
+          System.out.printf("Key:%s Value:%s Longitude:%s [partition %s]\n",
               record.key(),
               record.value().getLatitude(),
-              record.value().getLongitude());
+              record.value().getLongitude(),
+              record.partition());
         }
       }
     } finally {
-      System.out.println("*** Ending Consumer ***");
+      System.out.println("Closing consumer.");
       consumer.close();
     }
   }
