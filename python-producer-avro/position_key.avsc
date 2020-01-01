@@ -1,4 +1,4 @@
-{"namespace": "solution.model",
+{"namespace": "clients.avro",
     "type": "record",
     "name": "PositionKey",
     "fields": [

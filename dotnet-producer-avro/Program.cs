@@ -3,11 +3,11 @@ namespace DotnetProducerAvro
     using System;
     using System.IO;
     using System.Threading;
+    using clients.avro;
     using Confluent.Kafka;
     using Confluent.Kafka.SyncOverAsync;
     using Confluent.SchemaRegistry;
     using Confluent.SchemaRegistry.Serdes;
-    using solution.model;
 
     /// <summary>
     /// Dotnet avro producer.

@@ -5,7 +5,7 @@
 //    is regenerated
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace solution.model
+namespace clients.avro
 {
 	using System;
 	using System.Collections.Generic;
@@ -15,8 +15,8 @@ namespace solution.model
 	
 	public partial class PositionValue : ISpecificRecord
 	{
-		public static Schema _SCHEMA = Schema.Parse("{\"type\":\"record\",\"name\":\"PositionValue\",\"namespace\":\"solution.model\",\"fields\":[{\"" +
-				"name\":\"latitude\",\"type\":\"double\"},{\"name\":\"longitude\",\"type\":\"double\"}]}");
+		public static Schema _SCHEMA = Schema.Parse("{\"type\":\"record\",\"name\":\"PositionValue\",\"namespace\":\"clients.avro\",\"fields\":[{\"na" +
+				"me\":\"latitude\",\"type\":\"double\"},{\"name\":\"longitude\",\"type\":\"double\"}]}");
 		private double _latitude;
 		private double _longitude;
 		public virtual Schema Schema

@@ -1,5 +1,7 @@
 package clients;
 
+import clients.avro.PositionValue;
+
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 
@@ -13,8 +15,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;
-
-import solution.model.PositionValue;
 
 public class Producer {
   static final String DRIVER_FILE_PREFIX = "./drivers/";

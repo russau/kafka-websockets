@@ -1,5 +1,7 @@
 package clients;
 
+import clients.avro.PositionValue;
+
 import io.confluent.kafka.serializers.KafkaAvroDeserializer;
 import io.confluent.kafka.serializers.KafkaAvroDeserializerConfig;
 import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
@@ -12,8 +14,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-
-import solution.model.PositionValue;
 
 public class Consumer {
   static final String KAFKA_TOPIC = "driver-positions-avro";
