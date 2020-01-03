@@ -22,10 +22,10 @@ public class PrevDataConsumer {
    * Java previous consumer.
    */
   public static void main(String[] args) {
-    System.out.println("*** Starting Prev Data Consumer ***");
+    System.out.println("Starting Java Consumer.");
 
     final Properties settings = new Properties();
-    settings.put(ConsumerConfig.GROUP_ID_CONFIG, "prev-data-consumer");
+    settings.put(ConsumerConfig.GROUP_ID_CONFIG, "java-consumer-prev");
     settings.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     settings.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -77,7 +77,7 @@ public class PrevDataConsumer {
         }
       }
     } finally {
-      System.out.println("*** Ending Prev Data Consumer ***");
+      System.out.println("Closing consumer.");
       consumer.close();
     }
   }

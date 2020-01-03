@@ -10,6 +10,7 @@ pushd webserver-avro ; npm run pretest ; popd
 pushd node-producer ; npm run pretest ; popd
 pushd python-consumer ; python3 -m pylint main.py ; popd
 pushd python-consumer-avro ; python3 -m pylint main.py ; popd
+pushd python-consumer-prev ; python3 -m pylint main.py ; popd
 pushd python-producer ; python3 -m pylint main.py ; popd
 pushd python-producer-avro ; python3 -m pylint main.py ; popd
 pushd dotnet-consumer ; dotnet build  --no-incremental ; popd
