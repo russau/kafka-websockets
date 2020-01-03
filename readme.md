@@ -8,11 +8,14 @@
 ### TODO
 
 * lots more commenting
-* align all the producer / consumer output, e.g. `"*** Starting VP Producer ***"`
-* remove all references to `VP`
-* Better package names for avro generated stuff, rename `TestingZone`
-* consistent consumer group ids - e.g `java-consumer` ?
-
+* web UI that looks nicer in the smaller VM browser
+* Update the exercises to point to the online references for the clients
+  * https://docs.confluent.io/current/clients/confluent-kafka-python/index.html
+  * https://docs.confluent.io/current/clients/javadocs/index.html
+  * https://docs.confluent.io/current/clients/confluent-kafka-dotnet/api/Confluent.Kafka.html
+* Configure interceptors for connect and ksql?
+  * https://docs.confluent.io/current/control-center/installation/clients.html#kconnect-long
+  * https://docs.confluent.io/current/control-center/installation/clients.html#ksql
 
 ### Hosts file
 
@@ -100,7 +103,7 @@ docker-compose up -d kafka zookeeper control-center populate
 docker-compose up -d schema-registry webserver2
 ```
 
-Generate the specific Avro class for `position_value.avsc`. Java: `gradle build`, .net: `dotnet tool install -g Confluent.Apache.Avro.AvroGen` `avrogen -s position_value.avsc`.  Implement the missing code:
+Generate the specific Avro class for `position_value.avsc`. Java: `gradle build`, .net: `dotnet tool install -g Confluent.Apache.Avro.AvroGen` `avrogen -s position_value.avsc .`.  Implement the missing code:
 
 ```
 final PositionValue value = new PositionValue(...
@@ -121,6 +124,7 @@ kafka-avro-console-consumer --bootstrap-server kafka:9092 \
 * `curl schema-registry:8081/subjects` `curl schema-registry:8081/subjects/driver-positions-avro-value/versions/` `curl schema-registry:8081/subjects/driver-positions-avro-value/versions/1`
 * `curl schema-registry:8081/subjects/driver-positions-avro-value/versions/1 | jq ".schema | fromjson"`
 * `curl schema-registry:8081/config`
+* Advanced challenge: Try adding a field to your avro-producer `{"name": "altitude", "type": "double", "default": 0.0}`.  Would this be BACKWARD or FORWARD compatible? (It's both) https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types.  Try producing data to the existing topic with a dummy value for altitude.  Can the avro-consumer or the web application still consume from this topic? (yes it can as the change was forwards compatible, a client on an older version of the schema is still able to deserialize - it just ignores the altitude values).
 
 Coming soon! https://github.com/confluentinc/schema-registry/commit/5bededd7f1f62c4fb3b56c2564d3070441290029
 
@@ -133,7 +137,7 @@ kafka-avro-console-producer --broker-list kafka:9092 \
     --property schema.registry.url=http://schema-registry:8081 \
     --property key.serializer=org.apache.kafka.common.serialization.StringSerializer \
     --property "value.schema=$(tr -d '\n'<< EOF
-    {"namespace": "solution.model",
+    {"namespace": "clients.avro",
         "type": "record",
         "name": "PositionValue",
         "fields": [
