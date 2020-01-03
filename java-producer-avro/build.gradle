@@ -21,12 +21,8 @@ repositories {
     maven { url "http://packages.confluent.io/maven/" }
 }
 
-jar {
-    baseName = 'producer'
-}
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 11
+targetCompatibility = 11
 
 dependencies {
     compile group: 'org.apache.kafka', name: 'kafka-clients', version: '2.3.0'

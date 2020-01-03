@@ -10,10 +10,6 @@ repositories {
     maven { url 'http://packages.confluent.io/maven/' }
 }
 
-jar {
-    baseName = 'vp-producer'
-}
-
 sourceCompatibility = 11
 targetCompatibility = 11
 
