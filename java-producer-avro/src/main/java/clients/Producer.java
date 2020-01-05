@@ -35,7 +35,9 @@ public class Producer {
     settings.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     settings.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class);
     settings.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://schema-registry:8081");
-
+    settings.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
+        "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor");
+  
     final KafkaProducer<String, PositionValue> producer = new KafkaProducer<>(settings);
     
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -67,7 +69,7 @@ public class Producer {
 
     kafka-avro-console-consumer --bootstrap-server kafka:9092 \
     --property schema.registry.url=http://schema-registry:8081 \
-    --topic driver-positions --property print.key=true \
+    --topic driver-positions-avro --property print.key=true \
     --key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
 
     curl schema-registry:8081/subjects/driver-positions-avro-value/versions/1
