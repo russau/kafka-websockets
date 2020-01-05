@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "kafka-avro": "^3.0.0",
+    "node-rdkafka": "^2.7.4",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
