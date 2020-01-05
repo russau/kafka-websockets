@@ -124,7 +124,7 @@ kafka-avro-console-consumer --bootstrap-server kafka:9092 \
 * `curl schema-registry:8081/subjects` `curl schema-registry:8081/subjects/driver-positions-avro-value/versions/` `curl schema-registry:8081/subjects/driver-positions-avro-value/versions/1`
 * `curl schema-registry:8081/subjects/driver-positions-avro-value/versions/1 | jq ".schema | fromjson"`
 * `curl schema-registry:8081/config`
-* Advanced challenge: Try adding a field to your avro-producer `{"name": "altitude", "type": "double", "default": 0.0}`.  Would this be BACKWARD or FORWARD compatible? (It's both) https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types.  Try producing data to the existing topic with a dummy value for altitude.  Can the avro-consumer or the web application still consume from this topic? (yes it can as the change was forwards compatible, a client on an older version of the schema is still able to deserialize - it just ignores the altitude values).
+* Advanced challenge: Try adding a field to your avro-producer `{"name": "altitude", "type": "double", "default": 0.0}`.  Would this be BACKWARD or FORWARD compatible? (It's both) https://docs.confluent.io/current/schema-registry/avro.html#compatibility-types.  Try producing data to the existing topic with a dummy value for altitude.  Can the avro-consumer or the web application still consume from this topic? (yes it can as the change was forwards compatible, a client on an older version of the schema is still able to deserialize - it just ignores the altitude values). Hmm, webserver barfs when we have more than one schema id in the topic: https://github.com/waldophotos/kafka-avro/issues/52
 
 Coming soon! https://github.com/confluentinc/schema-registry/commit/5bededd7f1f62c4fb3b56c2564d3070441290029
 
@@ -216,8 +216,8 @@ Challenge: leave the `kafka-avro-console-consumer` running in a terminal window,
 
 ```
 docker-compose up -d kafka zookeeper control-center populate 
-docker-compose up -d producer1 producer2 producer3 producer4
 docker-compose up -d schema-registry webserver3
+docker-compose up -d producer1 producer2 producer3 producer4
 ```
 
 TODO: something to populate the `driver-avro` topic if the previous exercise was skipped.
@@ -324,3 +324,7 @@ curl -X POST http://ksql-server:8088/ksql \
         }
 EOF
 ```
+
+# NOTES
+
+If you ever see an error like `WARN  MonitoringMetrics:62 - Negative message latency=-21 ms` in a consumer with interceptors configured, see this article https://engineering.docker.com/2019/02/addressing-time-drift-in-docker-desktop-for-mac/.  It can happen because of clock skew with your producer running in docker, and your consumer running locally. We could configure log4j to silence this https://groups.google.com/forum/#!topic/confluent-platform/FCe6hFr1epY.
