@@ -1,9 +1,10 @@
+const os = require('os');
 const Kafka = require('node-rdkafka');
 const topics = [
   'driver-positions',
 ];
 const stream = Kafka.createReadStream({
-  'group.id': process.env.HOSTNAME,
+  'group.id': `${os.hostname()}`,
   'metadata.broker.list': 'kafka:9092',
   'plugin.library.paths': 'monitoring-interceptor',
 }, {'auto.offset.reset': 'earliest'}, {

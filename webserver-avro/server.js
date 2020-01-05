@@ -1,58 +1,77 @@
-const KafkaAvro = require('kafka-avro');
-const kafkaAvro = new KafkaAvro({
-  kafkaBroker: 'kafka:9092',
-  schemaRegistry: 'http://schema-registry:8081',
-});
-kafkaAvro.init()
-    .then(function() {
-      console.log('Ready to use');
-    });
+const os = require('os');
+const Kafka = require('node-rdkafka');
+const avro = require('avsc');
+const topic = process.env.TOPIC || 'driver-positions-avro';
+const schemas = {
+  'driver-positions-avro': {
+    type: 'record',
+    fields: [
+      {'name': 'latitude', 'type': 'double'},
+      {'name': 'longitude', 'type': 'double'},
+    ],
+  },
+  'driver-distance-avro': {
+    type: 'record',
+    fields: [
+      {'name': 'latitude', 'type': 'double'},
+      {'name': 'longitude', 'type': 'double'},
+      {'name': 'distance', 'type': 'double'},
+    ],
+  },
+  'driver-augmented-avro': {
+    type: 'record',
+    fields: [
+      {'name': 'LATITUDE', 'type': ['null', 'double'], 'default': null},
+      {'name': 'LONGITUDE', 'type': ['null', 'double'], 'default': null},
+      {'name': 'FIRSTNAME', 'type': ['null', 'string'], 'default': null},
+      {'name': 'LASTNAME', 'type': ['null', 'string'], 'default': null},
+      {'name': 'MAKE', 'type': ['null', 'string'], 'default': null},
+      {'name': 'MODEL', 'type': ['null', 'string'], 'default': null},
+    ],
+  },
+};
+const type = avro.Type.forSchema(schemas[topic]);
 
-const topics = [
-  process.env.TOPIC,
-];
-
-console.log('subscribing to ', topics);
-kafkaAvro.getConsumerStream({
-  'group.id': process.env.HOSTNAME,
+console.log(`subscribing to ${topic}`);
+const stream = Kafka.createReadStream({
+  'group.id': `${os.hostname()}`,
   'metadata.broker.list': 'kafka:9092',
+  'plugin.library.paths': 'monitoring-interceptor',
 }, {'auto.offset.reset': 'earliest'}, {
-  topics: topics,
+  topics: [topic],
   waitInterval: 0,
-})
-    .then(function(stream) {
-      stream.on('data', function(data) {
-        const message = {
-          'topic': data.topic,
-          'key': data.key.toString(),
-          'timestamp': data.timestamp,
-          'partition': data.partition,
-          'offset': data.offset,
-        };
+});
 
-        message['latitude'] = data.parsed.latitude ||
-          data.parsed.LATITUDE.double;
-        message['longitude'] = data.parsed.longitude ||
-          data.parsed.LONGITUDE.double;
+stream.on('data', function(avroData) {
+  const data = type.decode(avroData.value, 5).value;
+  const message = {
+    'topic': avroData.topic,
+    'key': avroData.key.toString(),
+    'timestamp': avroData.timestamp,
+    'partition': avroData.partition,
+    'offset': avroData.offset,
+  };
 
-        if (data.topic == 'driver-distance-avro') {
-          message['distance'] = Math.round(data.parsed.distance);
-        }
+  if (data.latitude) message['latitude'] = data.latitude;
+  if (data.longitude) message['longitude'] = data.longitude;
+  if (data.LATITUDE) message['latitude'] = data.LATITUDE;
+  if (data.LONGITUDE) message['longitude'] = data.LONGITUDE;
+  if (data.distance) message['distance'] = Math.round(data.distance);
 
-        // different format for ksql avro stream
-        if (data.topic == 'driver-augmented-avro') {
-          message['firstname'] = data.parsed.FIRSTNAME ?
-             data.parsed.FIRSTNAME.string : null;
-          message['lastname'] = data.parsed.LASTNAME ?
-             data.parsed.LASTNAME.string : null;
-          message['make'] = data.parsed.MAKE ?
-              data.parsed.MAKE.string : null;
-          message['model'] = data.parsed.MODEL ?
-              data.parsed.MODEL.string : null;
-        }
-        io.sockets.emit('new message', message);
-      });
-    });
+  // different format for ksql avro stream
+  if (avroData.topic == 'driver-augmented-avro') {
+    message['firstname'] = data.FIRSTNAME ?
+       data.FIRSTNAME : null;
+    message['lastname'] = data.LASTNAME ?
+       data.LASTNAME : null;
+    message['make'] = data.MAKE ?
+        data.MAKE : null;
+    message['model'] = data.MODEL ?
+        data.MODEL : null;
+  }
+
+  io.sockets.emit('new message', message);
+});
 
 // Setup basic express server
 const express = require('express');
