@@ -25,10 +25,9 @@ services:
       CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "kafka:9092"
 
   producer1:
+    image: cnfltraining/java-producer-avro:1.0
     container_name: producer1
-    build: ./java-producer-avro
-    volumes:
-      - ./java-producer-avro/drivers:/app/project/drivers
+    # build: ./java-producer-avro
     environment:
       DRIVER_ID: driver-1
     command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
@@ -38,10 +37,8 @@ services:
                       java -classpath \"lib/*\" clients.Producer'"
 
   producer2:
+    image: cnfltraining/java-producer-avro:1.0
     container_name: producer2
-    build: ./java-producer-avro
-    volumes:
-      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-2
     command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
@@ -51,10 +48,8 @@ services:
                       java -classpath \"lib/*\" clients.Producer'"
 
   producer3:
+    image: cnfltraining/java-producer-avro:1.0
     container_name: producer3
-    build: ./java-producer-avro
-    volumes:
-      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-3
     command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
@@ -64,10 +59,8 @@ services:
                       java -classpath \"lib/*\" clients.Producer'"
                         
   producer4:
+    image: cnfltraining/java-producer-avro:1.0
     container_name: producer4
-    build: ./java-producer-avro
-    volumes:
-      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-4
     command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
@@ -77,10 +70,8 @@ services:
                       java -classpath \"lib/*\" clients.Producer'"
 
   producer5:
+    image: cnfltraining/java-producer-avro:1.0
     container_name: producer5
-    build: ./java-producer-avro
-    volumes:
-      - ./java-producer-avro/drivers:/app/project/drivers
     environment:
       DRIVER_ID: driver-5
     command: "bash -c 'until curl -fsSL schema-registry:8081/subjects/ ; \
@@ -90,12 +81,10 @@ services:
                       java -classpath \"lib/*\" clients.Producer'"
 
   webserver1:
+    image: cnfltraining/node-webserver:1.0
     container_name: webserver1
     hostname: webserver1
-    build: ./webserver
-    volumes:
-      - ./webserver:/home/node/app
-      - /home/node/app/node_modules/
+    # build: ./webserver
     ports:
       - 3001:3000
     command: "bash -c 'until kafkacat -b kafka:9092 -L | grep driver-positions; \
@@ -105,12 +94,10 @@ services:
                       npm run start -- driver-1 drivers/1.json'"
 
   webserver2:
+    image: cnfltraining/node-webserver-avro:1.0
     container_name: webserver2
     hostname: webserver2
-    build: ./webserver-avro
-    volumes:
-      - ./webserver-avro:/home/node/app
-      - /home/node/app/node_modules/
+    # build: ./webserver-avro
     ports:
       - 3002:3000
     environment:
@@ -122,12 +109,9 @@ services:
                       npm run start'"
   
   webserver3:
+    image: cnfltraining/node-webserver-avro:1.0
     container_name: webserver3
     hostname: webserver3
-    build: ./webserver-avro
-    volumes:
-      - ./webserver-avro:/home/node/app
-      - /home/node/app/node_modules/
     ports:
       - 3003:3000
     environment:
@@ -139,12 +123,9 @@ services:
                       npm run start'"
 
   webserver4:
+    image: cnfltraining/node-webserver-avro:1.0
     container_name: webserver4
     hostname: webserver4
-    build: ./webserver-avro
-    volumes:
-      - ./webserver-avro:/home/node/app
-      - /home/node/app/node_modules/
     ports:
       - 3004:3000
     environment:
@@ -199,16 +180,6 @@ services:
       KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
       KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
 
-  # nginx:
-  #   image: nginx:1.15-alpine
-  #   container_name: nginx
-  #   depends_on:
-  #     - webserver
-  #   ports:
-  #     - 80:8080
-  #   volumes:
-  #     - ./nginx/conf.d:/etc/nginx/conf.d
-
   postgres:
     image: postgres:11.2-alpine
     container_name: postgres
@@ -241,7 +212,6 @@ services:
       CONNECT_PLUGIN_PATH: /usr/share/java
       CONNECT_REST_ADVERTISED_HOST_NAME: "connect"
 
-
   control-center:
     image: confluentinc/cp-enterprise-control-center:5.4.0-beta1
     container_name: control-center
@@ -260,7 +230,6 @@ services:
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
       CONTROL_CENTER_CONNECT_CLUSTER: "connect:8083"
       
-  # todo: the driver topic should be a compacted topic
   populate:
     image: confluentinc/cp-enterprise-kafka:5.4.0-beta1
     container_name: populate
