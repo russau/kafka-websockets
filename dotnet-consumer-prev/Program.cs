@@ -72,11 +72,6 @@
                         {
                             Console.WriteLine($"Error occured: {e.Error.Reason}");
                         }
-
-                        if (recordCount >= 100)
-                        {
-                            break;
-                        }
                     }
                 }
                 catch (OperationCanceledException)
