@@ -8,6 +8,7 @@ import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 import net.sf.geographiclib.Geodesic;
 
@@ -30,14 +31,12 @@ public class StreamsApp {
    */
   public static void main(String[] args) {
 
-    System.out.println(">>> Starting the vp-streams-app Application");
+    System.out.println(">>> Starting the streams-app Application");
 
     final Properties settings = new Properties();
-    settings.put(StreamsConfig.APPLICATION_ID_CONFIG, "vp-streams-app-1");
+    settings.put(StreamsConfig.APPLICATION_ID_CONFIG, "streams-app-1");
     settings.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
     settings.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
-        Serdes.String().getClass().getName());
-    settings.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
         Serdes.String().getClass().getName());
     // Disabling caching ensures we get a complete "changelog" from the
     // aggregate(...) step above (i.e.
@@ -50,15 +49,23 @@ public class StreamsApp {
     // you can paste the topology into this site for a vizualization: https://zz85.github.io/kafka-streams-viz/
     System.out.println(topology.describe());
     final KafkaStreams streams = new KafkaStreams(topology, settings);
+    final CountDownLatch latch = new CountDownLatch(1);
 
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      System.out.println("<<< Stopping the vp-streams-app Application");
+      System.out.println("<<< Stopping the streams-app Application");
       streams.close();
+      latch.countDown();
     }));
 
     // don't do this in prod as it clears your state stores
     streams.cleanUp();
-    streams.start();
+    try {
+      streams.start();
+      latch.await();
+    } catch (Throwable e) {
+      System.exit(1);
+    }
+    System.exit(0);
   }
 
   private static Topology getTopology() {
