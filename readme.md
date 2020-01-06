@@ -220,7 +220,7 @@ docker-compose up -d schema-registry webserver3
 docker-compose up -d producer1 producer2 producer3 producer4
 ```
 
-TODO: something to populate the `driver-avro` topic if the previous exercise was skipped.
+Before you run the code try answer the following questions: what topic will this app be writing to? what columns of data do you expect to see on this topic?
 
 Run the streams app. Check the topic is populated.
 
@@ -232,9 +232,9 @@ kafka-avro-console-consumer --bootstrap-server kafka:9092 \
     --from-beginning
 ```
 
-Check `kafka-topics --bootstrap-server kafka:9092 --list`. What is the new topic `vp-streams-app-1-KSTREAM-AGGREGATE-STATE-STORE-0000000001-changelog`?
+Check `kafka-topics --bootstrap-server kafka:9092 --list`. What is the new topic `streams-app-1-KSTREAM-AGGREGATE-STATE-STORE-0000000001-changelog`?
 
-What is in the folder `/tmp/kafka-streams/vp-streams-app-1/`. (TODO: Double check the folder location on Ubuntu.)
+What is in the folder `/tmp/kafka-streams/streams-app-1/`? (a RocksDB for each partition)
 
 In this exercise the topics `driver-avro` and `driver-positions-avro` are joined - what properties do the topics need in common for a successful join? (copartitioned: same key, same number of partitions, extra points: same partitioning algorithm.)
 
