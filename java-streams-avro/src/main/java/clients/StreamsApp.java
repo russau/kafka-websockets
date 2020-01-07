@@ -89,19 +89,23 @@ public class StreamsApp {
         positionValueSerde));
 
     final KTable<String, PositionDistance> reduced = testing.groupByKey().aggregate(
-        () -> new PositionDistance(), (key, newValue, accumulator) -> {
-        final Double latitude1 = accumulator.getLatitude();
-        final Double longitude1 = accumulator.getLongitude();
-        Double lastDistance = accumulator.getDistance();
-        final Double latitude2 = newValue.getLatitude();
-        final Double longitude2 = newValue.getLongitude();
+        () -> null,
+        (aggKey, newValue, aggValue) -> {
+          final Double newLatitude = newValue.getLatitude();
+          final Double newLongitude = newValue.getLongitude();
 
-        if (latitude1 != 0) {
-          final Double distance = Geodesic.WGS84.Inverse(latitude1, longitude1,
-              latitude2, longitude2).s12;
-          lastDistance += distance;
-        }
-        return new PositionDistance(latitude2, longitude2, lastDistance);
+          // initial record - no distance to calculate
+          if (aggValue == null) {
+            return new PositionDistance(newLatitude, newLongitude, 0.0);
+          }
+
+          final Double aggLatitude = aggValue.getLatitude();
+          final Double aggLongitude = aggValue.getLongitude();
+          Double aggDistance = aggValue.getDistance();
+          final Double distance = Geodesic.WGS84.Inverse(aggLatitude, aggLongitude,
+              newLatitude, newLongitude).s12;
+          aggDistance += distance;
+          return new PositionDistance(newLatitude, newLongitude, aggDistance);
       }, Materialized.with(
           Serdes.String(),
           positionDistanceSerde)); // , Materialized.as("queryable-store-name")
