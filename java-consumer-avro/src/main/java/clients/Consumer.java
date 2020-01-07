@@ -43,7 +43,7 @@ public class Consumer {
         final ConsumerRecords<String, PositionValue> records =
             consumer.poll(Duration.ofMillis(100));
         for (ConsumerRecord<String, PositionValue> record : records) {
-          System.out.printf("Key:%s Value:%s Longitude:%s [partition %s]\n",
+          System.out.printf("Key:%s Latitude:%s Longitude:%s [partition %s]\n",
               record.key(),
               record.value().getLatitude(),
               record.value().getLongitude(),
